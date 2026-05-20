@@ -1,6 +1,7 @@
 // src/pages/SkillMatchingPage.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/navbar/Navbar';
 import Background from "../components/background/Background";
@@ -27,7 +28,7 @@ const SkillMatchingPage = () => {
       }
 
       try {
-        const response = await axios.get('http://localhost:5000/api/matches', {
+        const response = await axios.get(`${API_URL}/api/matches`, {
           headers: { 'x-auth-token': token },
         });
 
@@ -60,21 +61,9 @@ const SkillMatchingPage = () => {
     }
 
     try {
-      await axios.post(
-        'http://localhost:5000/api/sessions/request',
-        { userId2: userId, sessionDate, sessionTime },
-        { headers: { 'x-auth-token': token } }
-      );
+      await axios.post(`${API_URL}/api/sessions/request`, { userId2: userId, sessionDate, sessionTime }, { headers: { 'x-auth-token': token } });
 
-      await axios.post(
-        'http://localhost:5000/api/notifications/send',
-        {
-          userId,
-          message: `You have a new session request for ${sessionDate} at ${sessionTime}`,
-          type: 'session_request',
-        },
-        { headers: { 'x-auth-token': token } }
-      );
+      await axios.post(`${API_URL}/api/notifications/send`, { userId, message: `You have a new session request for ${sessionDate} at ${sessionTime}`, type: 'session_request' }, { headers: { 'x-auth-token': token } });
 
       alert('Session request sent');
     } catch (err) {
@@ -121,7 +110,7 @@ const SkillMatchingPage = () => {
                       className="w-14 h-14 rounded-full border border-white/20"
                       src={
                         match.user?.profilePicture
-                          ? `http://localhost:5000/uploads/profile-pictures/${match.user.profilePicture}`
+                          ? `${API_URL}/uploads/profile-pictures/${match.user.profilePicture}`
                           : '/default-avatar.png'
                       }
                       alt="Avatar"

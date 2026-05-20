@@ -202,8 +202,9 @@ const sendMessage = async (req, res) => {
   let mediaType = null;
 
   if (req.file) {
-    // If there's a file uploaded, get the file URL and type
-    mediaUrl = `http://localhost:5000/uploads/message-uploads/${req.file.filename}`;
+    // If there's a file uploaded, build a production-safe URL for the file
+    const hostUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
+    mediaUrl = `${hostUrl}/uploads/message-uploads/${req.file.filename}`;
     mediaType = req.file.mimetype.startsWith('image') ? 'image' :
                 req.file.mimetype.startsWith('video') ? 'video' :
                 req.file.mimetype.startsWith('audio') ? 'audio' : null;

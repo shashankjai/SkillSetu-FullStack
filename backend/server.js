@@ -30,7 +30,10 @@ const app = express();
 const server = http.createServer(app);
 
 // Support multiple frontend origins via `FRONTEND_URLS` (comma-separated) or single `FRONTEND_URL`.
-const FRONTEND_URLS = process.env.FRONTEND_URLS || process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND_URLS =
+  process.env.FRONTEND_URLS ||
+  process.env.FRONTEND_URL ||
+  "http://localhost:5173";
 const allowedOrigins = FRONTEND_URLS.split(",").map((s) => s.trim());
 
 const corsOptions = {
@@ -76,6 +79,8 @@ setNotificationSocketIO(notificationSocket);
 app.use(express.json()); // For parsing application/json
 app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 app.use(cors(corsOptions));
+// Ensure OPTIONS preflight requests are handled with the same CORS options
+app.options("*", cors(corsOptions));
 
 // Serve static files (images) from 'uploads' folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
