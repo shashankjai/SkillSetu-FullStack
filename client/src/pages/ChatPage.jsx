@@ -8,6 +8,8 @@ import { FiCalendar, FiClock } from "react-icons/fi";
 import Footer from "../components/footer/Footer";
 import Background from "../components/background/Background";
 import "../components/background/Background.css";
+
+const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 import { IoMdWarning } from "react-icons/io"; // Importing a warning icon for the button
 
 const ChatPage = () => {
@@ -36,12 +38,9 @@ const ChatPage = () => {
     const fetchConnections = async () => {
       const token = localStorage.getItem("token");
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/sessions/accepted",
-          {
-            headers: { "x-auth-token": token },
-          },
-        );
+        const response = await axios.get(`${API_URL}/api/sessions/accepted`, {
+          headers: { "x-auth-token": token },
+        });
         setConnections(response.data);
 
         // If there is a sessionId in the URL, select that connection automatically
@@ -66,7 +65,7 @@ const ChatPage = () => {
       return;
     }
 
-    const socketIo = io("http://localhost:5000/sessions", {
+    const socketIo = io(`${API_URL}/sessions`, {
       transports: ["websocket"],
       query: { sessionId },
     });
@@ -99,7 +98,7 @@ const ChatPage = () => {
 
   // Set up the **Notification Socket.io connection** (separate from the chat socket)
   useEffect(() => {
-    const socketIoNotification = io("http://localhost:5000/notifications", {
+    const socketIoNotification = io(`${API_URL}/notifications`, {
       transports: ["websocket"],
     });
 
@@ -125,7 +124,7 @@ const ChatPage = () => {
         const token = localStorage.getItem("token");
         try {
           const response = await axios.get(
-            `http://localhost:5000/api/sessions/message/${selectedConnection._id}`,
+            `${API_URL}/api/sessions/message/${selectedConnection._id}`,
             {
               headers: { "x-auth-token": token },
             },
@@ -197,7 +196,7 @@ const ChatPage = () => {
 
     // Store the message in the backend
     axios
-      .post("http://localhost:5000/api/sessions/message", formData, {
+      .post(`${API_URL}/api/sessions/message`, formData, {
         headers: { "x-auth-token": token },
       })
       .then((response) => {
@@ -233,7 +232,7 @@ const ChatPage = () => {
     const token = localStorage.getItem("token");
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/sessions/schedule",
+        `${API_URL}/api/sessions/schedule`,
         {
           sessionId,
           newMeetingDate: scheduledDate,
@@ -265,7 +264,7 @@ const ChatPage = () => {
       console.log(`Marking session as ${status}`);
 
       await axios.post(
-        "http://localhost:5000/api/sessions/mark-session",
+        `${API_URL}/api/sessions/mark-session`,
         {
           sessionId,
           status,
@@ -283,7 +282,7 @@ const ChatPage = () => {
       setIsFeedbackModalOpen(false); // Close feedback modal after submission
       // Refresh session data to update the status
       const updatedSession = await axios.get(
-        "http://localhost:5000/api/sessions/accepted",
+        `${API_URL}/api/sessions/accepted`,
         {
           headers: {
             "x-auth-token": token, // Pass token for the session data request as well
@@ -348,13 +347,9 @@ const ChatPage = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/reports",
-        formData,
-        {
-          headers: { "x-auth-token": token },
-        },
-      );
+      const response = await axios.post(`${API_URL}/api/reports`, formData, {
+        headers: { "x-auth-token": token },
+      });
 
       // Success: Reset form and show success message
       alert("Report submitted successfully");

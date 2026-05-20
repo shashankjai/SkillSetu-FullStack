@@ -1,19 +1,23 @@
 // src/components/NotificationBell.jsx
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setNotifications } from '../redux/slices/notificationSlice';
-import { FaBell } from 'react-icons/fa';
-import io from 'socket.io-client';
-import NotificationDropdown from './NotificationDropdown';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setNotifications } from "../redux/slices/notificationSlice";
+import { FaBell } from "react-icons/fa";
+import io from "socket.io-client";
+import NotificationDropdown from "./NotificationDropdown";
+
+const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 
 const NotificationBell = () => {
   const dispatch = useDispatch();
-  const { notifications, unreadCount } = useSelector((state) => state.notifications);
+  const { notifications, unreadCount } = useSelector(
+    (state) => state.notifications,
+  );
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
-    const socket = io('http://localhost:5000/notifications');
-    socket.on('new_notification', (notification) => {
+    const socket = io(`${API_URL}/notifications`);
+    socket.on("new_notification", (notification) => {
       dispatch(setNotifications([notification]));
     });
     return () => socket.disconnect();

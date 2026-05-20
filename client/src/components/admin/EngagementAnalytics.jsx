@@ -26,6 +26,7 @@ const UserCardInner = ({ user, rank }) => {
     sessionCount,
   } = user;
 
+  const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
   const defaultAvatar = "/default-avatar.png";
 
   // Memoize computed values for performance
@@ -33,7 +34,7 @@ const UserCardInner = ({ user, rank }) => {
   const pictureUrl = useMemo(
     () =>
       profilePicture
-        ? `http://localhost:5000/uploads/profile-pictures/${profilePicture}`
+        ? `${API_URL}/uploads/profile-pictures/${profilePicture}`
         : defaultAvatar,
     [profilePicture],
   );

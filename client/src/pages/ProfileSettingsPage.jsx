@@ -1,35 +1,37 @@
 // src/pages/ProfileSettingsPage.jsx
-import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { setUser } from '../redux/slices/profileSlice';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/navbar/Navbar';
-import { FaEdit } from 'react-icons/fa';
-import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
-import defaultAvatar from '../assets/avatar.jpeg';
-import Background from '../components/background/Background';
-import '../components/background/Background.css';
-import Footer from '../components/footer/Footer';
+import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/slices/profileSlice";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/navbar/Navbar";
+import { FaEdit } from "react-icons/fa";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import defaultAvatar from "../assets/avatar.jpeg";
+import Background from "../components/background/Background";
+import "../components/background/Background.css";
+import Footer from "../components/footer/Footer";
+
+const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 
 const ProfileSettingsPage = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    profilePicture: '',
-    status: '',
-    socials: { linkedin: '', facebook: '', twitter: '' },
-    skillsToTeach: '',
-    skillsToLearn: ''
+    name: "",
+    profilePicture: "",
+    status: "",
+    socials: { linkedin: "", facebook: "", twitter: "" },
+    skillsToTeach: "",
+    skillsToLearn: "",
   });
   const [passwords, setPasswords] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmNewPassword: '',
+    currentPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
     currentPasswordVisible: false,
     newPasswordVisible: false,
-    confirmNewPasswordVisible: false
+    confirmNewPasswordVisible: false,
   });
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
 
   const dispatch = useDispatch();
@@ -38,28 +40,31 @@ const ProfileSettingsPage = () => {
   // Fetch profile data
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.get(
-          'http://localhost:5000/api/users/profile',
-          { headers: { 'x-auth-token': token } }
-        );
+        const res = await axios.get(`${API_URL}/api/users/profile`, {
+          headers: { "x-auth-token": token },
+        });
         const data = res.data;
         setFormData({
-          name: data.name || '',
-          profilePicture: data.profilePicture || '',
-          status: data.status || '',
-          socials: data.socials || { linkedin: '', facebook: '', twitter: '' },
-          skillsToTeach: data.skillsToTeach ? data.skillsToTeach.join(', ') : '',
-          skillsToLearn: data.skillsToLearn ? data.skillsToLearn.join(', ') : ''
+          name: data.name || "",
+          profilePicture: data.profilePicture || "",
+          status: data.status || "",
+          socials: data.socials || { linkedin: "", facebook: "", twitter: "" },
+          skillsToTeach: data.skillsToTeach
+            ? data.skillsToTeach.join(", ")
+            : "",
+          skillsToLearn: data.skillsToLearn
+            ? data.skillsToLearn.join(", ")
+            : "",
         });
         if (data.profilePicture) {
           setImagePreview(
-            `http://localhost:5000/uploads/profile-pictures/${data.profilePicture}`
+            `${API_URL}/uploads/profile-pictures/${data.profilePicture}`,
           );
         }
       } catch {
-        setMessage('Failed to load profile data.');
+        setMessage("Failed to load profile data.");
       }
     };
     fetchProfile();
@@ -69,53 +74,59 @@ const ProfileSettingsPage = () => {
   const avatarSrc = imagePreview
     ? imagePreview
     : formData.profilePicture
-    ? `http://localhost:5000/uploads/profile-pictures/${formData.profilePicture}`
-    : defaultAvatar;
+      ? `${API_URL}/uploads/profile-pictures/${formData.profilePicture}`
+      : defaultAvatar;
 
   // Handle profile update
 
-const handleUpdate = async () => {
-  const payload = new FormData();
-  payload.append('name', formData.name);
-  payload.append('status', formData.status);
+  const handleUpdate = async () => {
+    const payload = new FormData();
+    payload.append("name", formData.name);
+    payload.append("status", formData.status);
 
-  // Add each skill as a separate field in FormData
-  const skillsToTeachArray = formData.skillsToTeach.split(',').map((s) => s.trim()).filter((s) => s !== ''); // Create an array of skills
-  const skillsToLearnArray = formData.skillsToLearn.split(',').map((s) => s.trim()).filter((s) => s !== ''); // Create an array of skills
+    // Add each skill as a separate field in FormData
+    const skillsToTeachArray = formData.skillsToTeach
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s !== ""); // Create an array of skills
+    const skillsToLearnArray = formData.skillsToLearn
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s !== ""); // Create an array of skills
 
-  // Append each skill separately to FormData
-  skillsToTeachArray.forEach((skill, index) => {
-    payload.append('skillsToTeach[]', skill); // The '[]' syntax will ensure they are treated as an array
-  });
-
-  skillsToLearnArray.forEach((skill, index) => {
-    payload.append('skillsToLearn[]', skill); // Same for skillsToLearn
-  });
-
-  // Add socials and profile picture as usual
-  payload.append('socials[linkedin]', formData.socials.linkedin);
-  payload.append('socials[facebook]', formData.socials.facebook);
-  payload.append('socials[twitter]', formData.socials.twitter);
-
-  if (formData.profilePicture instanceof File) {
-    payload.append('profilePicture', formData.profilePicture);
-  }
-
-  try {
-    const token = localStorage.getItem('token');
-    const res = await axios.put('http://localhost:5000/api/users/profile', payload, {
-      headers: {
-        'x-auth-token': token,
-        'Content-Type': 'multipart/form-data',
-      },
+    // Append each skill separately to FormData
+    skillsToTeachArray.forEach((skill, index) => {
+      payload.append("skillsToTeach[]", skill); // The '[]' syntax will ensure they are treated as an array
     });
-    dispatch(setUser(res.data));
-    setMessage('Profile updated successfully!');
-    navigate('/profile');
-  } catch {
-    setMessage('Update failed. Please try again.');
-  }
-};
+
+    skillsToLearnArray.forEach((skill, index) => {
+      payload.append("skillsToLearn[]", skill); // Same for skillsToLearn
+    });
+
+    // Add socials and profile picture as usual
+    payload.append("socials[linkedin]", formData.socials.linkedin);
+    payload.append("socials[facebook]", formData.socials.facebook);
+    payload.append("socials[twitter]", formData.socials.twitter);
+
+    if (formData.profilePicture instanceof File) {
+      payload.append("profilePicture", formData.profilePicture);
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put(`${API_URL}/api/users/profile`, payload, {
+        headers: {
+          "x-auth-token": token,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      dispatch(setUser(res.data));
+      setMessage("Profile updated successfully!");
+      navigate("/profile");
+    } catch {
+      setMessage("Update failed. Please try again.");
+    }
+  };
   // Handle password change
   const handlePasswordChange = async () => {
     if (passwords.newPassword !== passwords.confirmNewPassword) {
@@ -123,26 +134,26 @@ const handleUpdate = async () => {
       return;
     }
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       await axios.put(
-        'http://localhost:5000/api/users/change-password',
+        `${API_URL}/api/users/change-password`,
         {
           currentPassword: passwords.currentPassword,
-          newPassword: passwords.newPassword
+          newPassword: passwords.newPassword,
         },
-        { headers: { 'x-auth-token': token } }
+        { headers: { "x-auth-token": token } },
       );
-      setMessage('Password updated successfully!');
+      setMessage("Password updated successfully!");
     } catch {
-      setMessage('Password update failed. Please try again.');
+      setMessage("Password update failed. Please try again.");
     }
   };
 
   // Handle image upload & preview
-  const handleImageUpload = e => {
+  const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData(prev => ({ ...prev, profilePicture: file }));
+      setFormData((prev) => ({ ...prev, profilePicture: file }));
       setImagePreview(URL.createObjectURL(file));
     }
   };
@@ -187,7 +198,10 @@ const handleUpdate = async () => {
           <div className="space-y-6">
             {/* Name */}
             <div>
-              <label htmlFor="name" className="block mb-1 font-semibold text-gray-700">
+              <label
+                htmlFor="name"
+                className="block mb-1 font-semibold text-gray-700"
+              >
                 Name
               </label>
               <input
@@ -195,7 +209,7 @@ const handleUpdate = async () => {
                 type="text"
                 placeholder="Name"
                 value={formData.name}
-                onChange={e =>
+                onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
                 className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
@@ -204,7 +218,10 @@ const handleUpdate = async () => {
 
             {/* Status */}
             <div>
-              <label htmlFor="status" className="block mb-1 font-semibold text-gray-700">
+              <label
+                htmlFor="status"
+                className="block mb-1 font-semibold text-gray-700"
+              >
                 Status
               </label>
               <input
@@ -212,7 +229,7 @@ const handleUpdate = async () => {
                 type="text"
                 placeholder="Status"
                 value={formData.status}
-                onChange={e =>
+                onChange={(e) =>
                   setFormData({ ...formData, status: e.target.value })
                 }
                 className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
@@ -221,7 +238,10 @@ const handleUpdate = async () => {
 
             {/* LinkedIn URL */}
             <div>
-              <label htmlFor="linkedin" className="block mb-1 font-semibold text-gray-700">
+              <label
+                htmlFor="linkedin"
+                className="block mb-1 font-semibold text-gray-700"
+              >
                 LinkedIn URL
               </label>
               <input
@@ -229,10 +249,10 @@ const handleUpdate = async () => {
                 type="text"
                 placeholder="LinkedIn URL"
                 value={formData.socials.linkedin}
-                onChange={e =>
+                onChange={(e) =>
                   setFormData({
                     ...formData,
-                    socials: { ...formData.socials, linkedin: e.target.value }
+                    socials: { ...formData.socials, linkedin: e.target.value },
                   })
                 }
                 className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
@@ -241,7 +261,10 @@ const handleUpdate = async () => {
 
             {/* Facebook URL */}
             <div>
-              <label htmlFor="facebook" className="block mb-1 font-semibold text-gray-700">
+              <label
+                htmlFor="facebook"
+                className="block mb-1 font-semibold text-gray-700"
+              >
                 Facebook URL
               </label>
               <input
@@ -249,10 +272,10 @@ const handleUpdate = async () => {
                 type="text"
                 placeholder="Facebook URL"
                 value={formData.socials.facebook}
-                onChange={e =>
+                onChange={(e) =>
                   setFormData({
                     ...formData,
-                    socials: { ...formData.socials, facebook: e.target.value }
+                    socials: { ...formData.socials, facebook: e.target.value },
                   })
                 }
                 className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
@@ -261,7 +284,10 @@ const handleUpdate = async () => {
 
             {/* Twitter URL */}
             <div>
-              <label htmlFor="twitter" className="block mb-1 font-semibold text-gray-700">
+              <label
+                htmlFor="twitter"
+                className="block mb-1 font-semibold text-gray-700"
+              >
                 Twitter URL
               </label>
               <input
@@ -269,10 +295,10 @@ const handleUpdate = async () => {
                 type="text"
                 placeholder="Twitter URL"
                 value={formData.socials.twitter}
-                onChange={e =>
+                onChange={(e) =>
                   setFormData({
                     ...formData,
-                    socials: { ...formData.socials, twitter: e.target.value }
+                    socials: { ...formData.socials, twitter: e.target.value },
                   })
                 }
                 className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
@@ -281,7 +307,10 @@ const handleUpdate = async () => {
 
             {/* Skills You Can Teach */}
             <div>
-              <label htmlFor="skillsToTeach" className="block mb-1 font-semibold text-gray-700">
+              <label
+                htmlFor="skillsToTeach"
+                className="block mb-1 font-semibold text-gray-700"
+              >
                 Skills You Can Teach (comma-separated)
               </label>
               <input
@@ -289,7 +318,7 @@ const handleUpdate = async () => {
                 type="text"
                 placeholder="e.g. JavaScript, Design"
                 value={formData.skillsToTeach}
-                onChange={e =>
+                onChange={(e) =>
                   setFormData({ ...formData, skillsToTeach: e.target.value })
                 }
                 className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
@@ -298,7 +327,10 @@ const handleUpdate = async () => {
 
             {/* Skills You Want to Learn */}
             <div>
-              <label htmlFor="skillsToLearn" className="block mb-1 font-semibold text-gray-700">
+              <label
+                htmlFor="skillsToLearn"
+                className="block mb-1 font-semibold text-gray-700"
+              >
                 Skills You Want to Learn (comma-separated)
               </label>
               <input
@@ -306,7 +338,7 @@ const handleUpdate = async () => {
                 type="text"
                 placeholder="e.g. Go, Machine Learning"
                 value={formData.skillsToLearn}
-                onChange={e =>
+                onChange={(e) =>
                   setFormData({ ...formData, skillsToLearn: e.target.value })
                 }
                 className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
@@ -325,40 +357,43 @@ const handleUpdate = async () => {
           <div className="mt-8 pt-6 border-t space-y-6">
             {[
               {
-                key: 'currentPassword',
-                placeholder: 'Current Password',
-                visibleKey: 'currentPasswordVisible',
-                label: 'Current Password',
-                id: 'currentPassword'
+                key: "currentPassword",
+                placeholder: "Current Password",
+                visibleKey: "currentPasswordVisible",
+                label: "Current Password",
+                id: "currentPassword",
               },
               {
-                key: 'newPassword',
-                placeholder: 'New Password',
-                visibleKey: 'newPasswordVisible',
-                label: 'New Password',
-                id: 'newPassword'
+                key: "newPassword",
+                placeholder: "New Password",
+                visibleKey: "newPasswordVisible",
+                label: "New Password",
+                id: "newPassword",
               },
               {
-                key: 'confirmNewPassword',
-                placeholder: 'Confirm New Password',
-                visibleKey: 'confirmNewPasswordVisible',
-                label: 'Confirm New Password',
-                id: 'confirmNewPassword'
-              }
+                key: "confirmNewPassword",
+                placeholder: "Confirm New Password",
+                visibleKey: "confirmNewPasswordVisible",
+                label: "Confirm New Password",
+                id: "confirmNewPassword",
+              },
             ].map(({ key, placeholder, visibleKey, label, id }) => (
               <div key={key} className="relative">
-                <label htmlFor={id} className="block mb-1 font-semibold text-gray-700">
+                <label
+                  htmlFor={id}
+                  className="block mb-1 font-semibold text-gray-700"
+                >
                   {label}
                 </label>
                 <input
                   id={id}
-                  type={passwords[visibleKey] ? 'text' : 'password'}
+                  type={passwords[visibleKey] ? "text" : "password"}
                   placeholder={placeholder}
                   value={passwords[key]}
-                  onChange={e =>
-                    setPasswords(prev => ({
+                  onChange={(e) =>
+                    setPasswords((prev) => ({
                       ...prev,
-                      [key]: e.target.value
+                      [key]: e.target.value,
                     }))
                   }
                   className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
@@ -366,9 +401,9 @@ const handleUpdate = async () => {
                 <div
                   className="absolute top-10 right-3 cursor-pointer"
                   onClick={() =>
-                    setPasswords(prev => ({
+                    setPasswords((prev) => ({
                       ...prev,
-                      [visibleKey]: !prev[visibleKey]
+                      [visibleKey]: !prev[visibleKey],
                     }))
                   }
                 >

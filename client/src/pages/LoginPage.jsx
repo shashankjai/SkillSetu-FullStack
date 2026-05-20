@@ -8,6 +8,8 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import loginImage from "../assets/auth-bg.jpg";
+
+const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 import { FiMail, FiLock } from "react-icons/fi";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { motion } from "framer-motion";
@@ -43,13 +45,10 @@ const LoginPage = () => {
     // API call
     dispatch(loginStart());
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        {
-          email,
-          password,
-        },
-      );
+      const response = await axios.post(`${API_URL}/api/auth/login`, {
+        email,
+        password,
+      });
 
       const token = response.data.token;
       const decoded = jwtDecode(token);

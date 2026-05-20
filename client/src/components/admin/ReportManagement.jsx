@@ -1,22 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   fetchReports,
   resolveReport,
   fetchSessionChats,
-  blockUser
-} from '../../redux/slices/adminSlice';
-import { FaComments } from 'react-icons/fa';
+  blockUser,
+} from "../../redux/slices/adminSlice";
+import { FaComments } from "react-icons/fa";
+
+const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 
 const ReportManagement = () => {
   const dispatch = useDispatch();
-  const storeReports = useSelector(state => state.admin.reports);
-  const { loading, error, sessionChats, loadingChats, errorChats } = useSelector(state => state.admin);
+  const storeReports = useSelector((state) => state.admin.reports);
+  const { loading, error, sessionChats, loadingChats, errorChats } =
+    useSelector((state) => state.admin);
 
   // Local copy so we can drop resolved ones immediately
   const [reports, setReports] = useState([]);
-  const [blockedUserName, setBlockedUserName] = useState('');
-  const [activeSession, setActiveSession] = useState('');
+  const [blockedUserName, setBlockedUserName] = useState("");
+  const [activeSession, setActiveSession] = useState("");
 
   // Fetch once
   useEffect(() => {
@@ -28,9 +31,9 @@ const ReportManagement = () => {
     setReports(storeReports);
   }, [storeReports]);
 
-  const handleResolve = id => {
+  const handleResolve = (id) => {
     dispatch(resolveReport(id)).then(() => {
-      setReports(prev => prev.filter(r => r._id !== id));
+      setReports((prev) => prev.filter((r) => r._id !== id));
     });
   };
 
@@ -41,7 +44,7 @@ const ReportManagement = () => {
     });
   };
 
-  const viewChats = sessionId => {
+  const viewChats = (sessionId) => {
     setActiveSession(sessionId);
     dispatch(fetchSessionChats(sessionId));
   };
@@ -54,9 +57,11 @@ const ReportManagement = () => {
             User <strong>{blockedUserName}</strong> has been blocked.
           </span>
           <button
-            onClick={() => setBlockedUserName('')}
+            onClick={() => setBlockedUserName("")}
             className="text-red-700 font-bold hover:text-red-900"
-          >×</button>
+          >
+            ×
+          </button>
         </div>
       )}
 
@@ -64,11 +69,13 @@ const ReportManagement = () => {
         Report Management
       </h2>
 
-      {loading && <p className="text-gray-600 animate-pulse">Loading reports...</p>}
+      {loading && (
+        <p className="text-gray-600 animate-pulse">Loading reports...</p>
+      )}
       {error && <p className="text-red-500">{error}</p>}
 
       <div className="space-y-6">
-        {reports.map(r => (
+        {reports.map((r) => (
           <div
             key={r._id}
             className="p-6 bg-blue-900 text-white rounded-lg shadow-lg transform transition hover:scale-105 hover:shadow-2xl"
@@ -79,19 +86,22 @@ const ReportManagement = () => {
                 {/* Reporter */}
                 {r.reporter && (
                   <p>
-                    <span className="font-bold">Reporter:</span> {r.reporter.name} ({r.reporter.email})
+                    <span className="font-bold">Reporter:</span>{" "}
+                    {r.reporter.name} ({r.reporter.email})
                   </p>
                 )}
                 {/* Target User */}
                 {r.targetUser && (
                   <p>
-                    <span className="font-bold">Target User:</span> {r.targetUser.name} ({r.targetUser.email})
+                    <span className="font-bold">Target User:</span>{" "}
+                    {r.targetUser.name} ({r.targetUser.email})
                   </p>
                 )}
                 {/* Session */}
                 {r.session && (
                   <p>
-                    <span className="font-bold">Session ID:</span> {r.session._id}
+                    <span className="font-bold">Session ID:</span>{" "}
+                    {r.session._id}
                   </p>
                 )}
               </div>
@@ -112,12 +122,12 @@ const ReportManagement = () => {
                 <div>
                   <span className="font-bold">Screenshot:</span>
                   <a
-                    href={`http://localhost:5000${r.screenshot}`}
+                    href={`${API_URL}${r.screenshot}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <img
-                      src={`http://localhost:5000${r.screenshot}`}
+                      src={`${API_URL}${r.screenshot}`}
                       alt="Report screenshot"
                       className="mt-2 w-32 h-32 object-cover rounded border-2 border-white shadow"
                     />
@@ -139,7 +149,9 @@ const ReportManagement = () => {
               </button>
               {r.targetUser && (
                 <button
-                  onClick={() => handleBlock(r.targetUser._id, r.targetUser.name)}
+                  onClick={() =>
+                    handleBlock(r.targetUser._id, r.targetUser.name)
+                  }
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition hover:scale-105"
                 >
                   Block User
@@ -154,18 +166,23 @@ const ReportManagement = () => {
       {activeSession && (
         <div className="mt-8 p-6 bg-blue-100 rounded-lg shadow-inner transition-opacity duration-300">
           <h3 className="text-xl font-bold text-blue-900 mb-4 text-left">
-            Chat History for Session <span className="font-mono text-blue-700">{activeSession}</span>
+            Chat History for Session{" "}
+            <span className="font-mono text-blue-700">{activeSession}</span>
           </h3>
 
-          {loadingChats && <p className="text-gray-600 animate-pulse">Loading chats…</p>}
+          {loadingChats && (
+            <p className="text-gray-600 animate-pulse">Loading chats…</p>
+          )}
           {errorChats && <p className="text-red-500">{errorChats}</p>}
 
           <div className="max-h-96 overflow-y-auto space-y-4">
-            {sessionChats.map(msg => (
+            {sessionChats.map((msg) => (
               <div
                 key={msg._id}
                 className={`p-3 rounded-lg shadow ${
-                  msg.senderId._id === msg.receiverId._id ? 'bg-blue-200' : 'bg-white'
+                  msg.senderId._id === msg.receiverId._id
+                    ? "bg-blue-200"
+                    : "bg-white"
                 }`}
               >
                 <div className="flex justify-between text-sm text-gray-600 mb-1">
@@ -173,7 +190,7 @@ const ReportManagement = () => {
                   <span>{new Date(msg.timestamp).toLocaleString()}</span>
                 </div>
                 {msg.content && <p className="text-gray-800">{msg.content}</p>}
-                {msg.mediaUrl && msg.mediaType === 'image' && (
+                {msg.mediaUrl && msg.mediaType === "image" && (
                   <img
                     src={msg.mediaUrl}
                     alt="attachment"
@@ -183,7 +200,9 @@ const ReportManagement = () => {
               </div>
             ))}
             {!sessionChats.length && !loadingChats && (
-              <p className="text-gray-500">No messages found for this session.</p>
+              <p className="text-gray-500">
+                No messages found for this session.
+              </p>
             )}
           </div>
         </div>

@@ -13,6 +13,8 @@ import { setNotifications } from "../redux/slices/notificationSlice";
 import Background from "../components/background/Background";
 import "../components/background/Background.css";
 import Footer from "../components/footer/Footer";
+
+const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 import defaultAvatar from "../assets/avatar.jpeg";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
@@ -53,17 +55,16 @@ const ProfilePage = () => {
       const token = localStorage.getItem("token");
       if (!token) return;
       try {
-        const { data } = await axios.get(
-          "http://localhost:5000/api/users/profile",
-          { headers: { "x-auth-token": token } }
-        );
+        const { data } = await axios.get(`${API_URL}/api/users/profile`, {
+          headers: { "x-auth-token": token },
+        });
         setUser(data);
         setSkillsToTeach(data.skillsToTeach);
         setSkillsToLearn(data.skillsToLearn);
 
         const notifRes = await axios.get(
-          `http://localhost:5000/api/notifications/${data._id}`,
-          { headers: { "x-auth-token": token } }
+          `${API_URL}/api/notifications/${data._id}`,
+          { headers: { "x-auth-token": token } },
         );
         dispatch(setNotifications(notifRes.data));
       } catch {
@@ -80,23 +81,23 @@ const ProfilePage = () => {
       if (!token) return;
       try {
         const [p, a, co, c] = await Promise.all([
-          axios.get("http://localhost:5000/api/sessions/pending", {
+          axios.get(`${API_URL}/api/sessions/pending`, {
             headers: { "x-auth-token": token },
           }),
-          axios.get("http://localhost:5000/api/sessions/acceptedOnly", {
+          axios.get(`${API_URL}/api/sessions/acceptedOnly`, {
             headers: { "x-auth-token": token },
           }),
-          axios.get("http://localhost:5000/api/sessions/completed", {
+          axios.get(`${API_URL}/api/sessions/completed`, {
             headers: { "x-auth-token": token },
           }),
-          axios.get("http://localhost:5000/api/sessions/canceled", {
+          axios.get(`${API_URL}/api/sessions/canceled`, {
             headers: { "x-auth-token": token },
           }),
         ]);
 
         const now = new Date();
         setPendingSessions(
-          p.data.filter((session) => new Date(session.sessionDate) >= now)
+          p.data.filter((session) => new Date(session.sessionDate) >= now),
         );
         setAcceptedSessions(a.data);
         setCompletedSessions(co.data);
@@ -127,7 +128,7 @@ const ProfilePage = () => {
     const token = localStorage.getItem("token");
     try {
       const { data } = await axios.put(
-        "http://localhost:5000/api/users/profile",
+        `${API_URL}/api/users/profile`,
         {
           name: user.name, // Ensure `name` is sent in the request
           status: user.status,
@@ -135,7 +136,7 @@ const ProfilePage = () => {
           skillsToTeach: modalTeach.split(",").map((s) => s.trim()),
           skillsToLearn: modalLearn.split(",").map((s) => s.trim()),
         },
-        { headers: { "x-auth-token": token } }
+        { headers: { "x-auth-token": token } },
       );
       setUser(data);
       setSkillsToTeach(data.skillsToTeach);
@@ -152,9 +153,9 @@ const ProfilePage = () => {
     const token = localStorage.getItem("token");
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/sessions/accept",
+        `${API_URL}/api/sessions/accept`,
         { sessionId: id },
-        { headers: { "x-auth-token": token } }
+        { headers: { "x-auth-token": token } },
       );
       setPendingSessions((ps) => ps.filter((s) => s._id !== id));
       setAcceptedSessions((as) => [...as, res.data.session]);
@@ -203,7 +204,7 @@ const ProfilePage = () => {
                 <img
                   src={
                     user?.profilePicture
-                      ? `http://localhost:5000/uploads/profile-pictures/${user.profilePicture}`
+                      ? `${API_URL}/uploads/profile-pictures/${user.profilePicture}`
                       : defaultAvatar
                   }
                   alt="Profile"
@@ -401,7 +402,7 @@ const ProfilePage = () => {
                     {skillsToTeach.length > 0 ? (
                       skillsToTeach
                         .flatMap((skill) =>
-                          skill.split(",").map((s) => s.trim())
+                          skill.split(",").map((s) => s.trim()),
                         )
                         .map((s, i) => (
                           <span
@@ -426,7 +427,7 @@ const ProfilePage = () => {
                     {skillsToLearn.length > 0 ? (
                       skillsToLearn
                         .flatMap((skill) =>
-                          skill.split(",").map((s) => s.trim())
+                          skill.split(",").map((s) => s.trim()),
                         )
                         .map((s, i) => (
                           <span
@@ -499,18 +500,18 @@ const ProfilePage = () => {
                   {(activeTab === "pending"
                     ? pendingSessions
                     : activeTab === "upcoming"
-                    ? acceptedSessions
-                    : activeTab === "completed"
-                    ? completedSessions
-                    : canceledSessions
+                      ? acceptedSessions
+                      : activeTab === "completed"
+                        ? completedSessions
+                        : canceledSessions
                   ).length > 0 ? (
                     (activeTab === "pending"
                       ? pendingSessions
                       : activeTab === "upcoming"
-                      ? acceptedSessions
-                      : activeTab === "completed"
-                      ? completedSessions
-                      : canceledSessions
+                        ? acceptedSessions
+                        : activeTab === "completed"
+                          ? completedSessions
+                          : canceledSessions
                     ).map((s) => (
                       <div
                         key={s._id}
@@ -562,11 +563,11 @@ const ProfilePage = () => {
                               : "bg-blue-600 text-white hover:bg-blue-700"
                           } active:scale-95`}
                         >
-                        {activeTab === "pending"
-                          ? "Accept"
-                          : activeTab === "upcoming"
-                          ? "Start Chat"
-                          : "View Feedback"}
+                          {activeTab === "pending"
+                            ? "Accept"
+                            : activeTab === "upcoming"
+                              ? "Start Chat"
+                              : "View Feedback"}
                         </button>
                       </div>
                     ))
@@ -575,10 +576,10 @@ const ProfilePage = () => {
                       {activeTab === "pending"
                         ? "No pending sessions."
                         : activeTab === "upcoming"
-                        ? "No upcoming sessions."
-                        : activeTab === "completed"
-                        ? "No completed sessions."
-                        : "No canceled sessions."}
+                          ? "No upcoming sessions."
+                          : activeTab === "completed"
+                            ? "No completed sessions."
+                            : "No canceled sessions."}
                     </p>
                   )}
                 </div>

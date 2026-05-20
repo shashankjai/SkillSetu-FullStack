@@ -1,13 +1,19 @@
-import { FaLinkedin, FaTwitter, FaInstagram } from 'react-icons/fa';
+import { FaLinkedin, FaTwitter, FaInstagram } from "react-icons/fa";
 
 export default function ProfileCard({ user }) {
+  const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
+
   return (
     <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-xl shadow-lg p-6 w-80 text-center text-white">
       {/* Profile Image */}
       <div className="relative">
         <img
           className="mx-auto h-32 w-32 rounded-full object-cover border-4 border-white shadow-lg"
-          src={user?.profilePicture ? `http://localhost:5000/uploads/profile-pictures/${user.profilePicture}` : '/default-avatar.png'}
+          src={
+            user?.profilePicture
+              ? `${API_URL}/uploads/profile-pictures/${user.profilePicture}`
+              : "/default-avatar.png"
+          }
           alt="Avatar"
         />
       </div>
