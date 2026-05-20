@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./background.css";
+import "./Background.css";
 
 const colors = [
   ["from-white/70", "to-blue-100"],
@@ -41,20 +41,22 @@ const Background = () => {
   const [sparkTrigger, setSparkTrigger] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSparkTrigger(true);
+    const interval = setInterval(
+      () => {
+        setSparkTrigger(true);
 
-      setTimeout(() => {
-        setSparkTrigger(false);
-      }, 800);
-    }, Math.random() * 1000 + 2000);
+        setTimeout(() => {
+          setSparkTrigger(false);
+        }, 800);
+      },
+      Math.random() * 1000 + 2000,
+    );
 
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700">
-
       {/* only slightly darker */}
       <div className="absolute inset-0 bg-black/10" />
 
