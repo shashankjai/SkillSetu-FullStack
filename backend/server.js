@@ -29,14 +29,17 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const corsOptions = {
+  origin: FRONTEND_URL,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "x-auth-token"],
+  credentials: true,
+};
+
 // ✅ Create Socket.IO instance ONCE
 const io = socketIo(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type, x-auth-token"],
-    credentials: true,
-  },
+  cors: corsOptions,
 });
 
 // ✅ Create namespaces from single instance
@@ -51,7 +54,7 @@ setNotificationSocketIO(notificationSocket);
 // Use body parsing for both JSON and URL encoded data
 app.use(express.json()); // For parsing application/json
 app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
-app.use(cors());
+app.use(cors(corsOptions));
 
 // Serve static files (images) from 'uploads' folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
