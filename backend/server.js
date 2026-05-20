@@ -29,9 +29,19 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+// Support multiple frontend origins via `FRONTEND_URLS` (comma-separated) or single `FRONTEND_URL`.
+const FRONTEND_URLS = process.env.FRONTEND_URLS || process.env.FRONTEND_URL || "http://localhost:5173";
+const allowedOrigins = FRONTEND_URLS.split(",").map((s) => s.trim());
+
 const corsOptions = {
-  origin: FRONTEND_URL,
+  origin: function (origin, callback) {
+    // allow requests with no origin (e.g., mobile apps, curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("CORS policy: Origin not allowed"), false);
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "x-auth-token"],
   credentials: true,
@@ -39,7 +49,18 @@ const corsOptions = {
 
 // ✅ Create Socket.IO instance ONCE
 const io = socketIo(server, {
-  cors: corsOptions,
+  cors: {
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("CORS policy: Origin not allowed"), false);
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "x-auth-token"],
+    credentials: true,
+  },
 });
 
 // ✅ Create namespaces from single instance
