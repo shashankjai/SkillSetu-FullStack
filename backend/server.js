@@ -33,7 +33,7 @@ const server = http.createServer(app);
 const FRONTEND_URLS =
   process.env.FRONTEND_URLS ||
   process.env.FRONTEND_URL ||
-  "http://localhost:5173";
+  "http://localhost:5173,https://skill-setu-full-stack.vercel.app,https://skill-setu-full-stack-c2go.vercel.app";
 const allowedOrigins = FRONTEND_URLS.split(",").map((s) => s.trim());
 
 const corsOptions = {
