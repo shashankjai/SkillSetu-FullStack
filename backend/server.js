@@ -38,9 +38,17 @@ const allowedOrigins = FRONTEND_URLS.split(",").map((s) => s.trim());
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // allow requests with no origin (e.g., mobile apps, curl)
+    // allow requests with no origin (e.g., curl, native apps)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    // Allow related Vercel preview domains for this project name.
+    if (
+      origin.endsWith(".vercel.app") &&
+      (origin.includes("skill-setu-full-stack") ||
+        origin.includes("skill-setu-full-stack-onfe"))
+    ) {
       return callback(null, true);
     }
     return callback(new Error("CORS policy: Origin not allowed"), false);
@@ -56,6 +64,12 @@ const io = socketIo(server, {
     origin: function (origin, callback) {
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      if (
+        origin.endsWith(".vercel.app") &&
+        (origin.includes("skill-setu-full-stack") || origin.includes("skill-setu-full-stack-onfe"))
+      ) {
         return callback(null, true);
       }
       return callback(new Error("CORS policy: Origin not allowed"), false);
