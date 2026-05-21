@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { FiUser, FiMail, FiLock } from "react-icons/fi";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import registerImage from "../assets/auth-bg.jpg"; // Use same image as login
-
+import { Link } from "react-router-dom";
 const RegisterPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -197,9 +197,9 @@ const RegisterPage = () => {
             <div className="text-center mt-2">
               <p className="text-white">
                 Already have an account?{" "}
-                <a href="/login" className="underline hover:text-gray-200">
+                <Link to="/login" className="underline hover:text-gray-200">
                   Login here
-                </a>
+                </Link>
               </p>
             </div>
           </form>
