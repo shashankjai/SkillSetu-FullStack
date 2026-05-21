@@ -33,7 +33,7 @@ const server = http.createServer(app);
 const FRONTEND_URLS =
   process.env.FRONTEND_URLS ||
   process.env.FRONTEND_URL ||
-  "http://localhost:5173,https://skill-setu-full-stack.vercel.app,https://skill-setu-full-stack-c2go.vercel.app,https://skill-setu-full-stack-onfe-3ilotf4ml-shashankjais-projects.vercel.app";
+  "http://localhost:5173,https://skill-setu-client.onrender.com,https://skill-setu-full-stack.vercel.app,https://skill-setu-full-stack-c2go.vercel.app,https://skill-setu-full-stack-onfe-3ilotf4ml-shashankjais-projects.vercel.app";
 const allowedOrigins = FRONTEND_URLS.split(",").map((s) => s.trim());
 
 const corsOptions = {
@@ -68,7 +68,8 @@ const io = socketIo(server, {
       }
       if (
         origin.endsWith(".vercel.app") &&
-        (origin.includes("skill-setu-full-stack") || origin.includes("skill-setu-full-stack-onfe"))
+        (origin.includes("skill-setu-full-stack") ||
+          origin.includes("skill-setu-full-stack-onfe"))
       ) {
         return callback(null, true);
       }
