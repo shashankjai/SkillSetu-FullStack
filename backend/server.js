@@ -79,8 +79,6 @@ setNotificationSocketIO(notificationSocket);
 app.use(express.json()); // For parsing application/json
 app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 app.use(cors(corsOptions));
-// Ensure OPTIONS preflight requests are handled with the same CORS options
-app.options("*", cors(corsOptions));
 
 // Serve static files (images) from 'uploads' folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
