@@ -56,7 +56,7 @@ const loginUser = async (req, res) => {
   if (mongoose.connection.readyState !== 1) {
     console.error("Login attempted while MongoDB is not connected");
     return res.status(503).json({
-      msg: "Database is temporarily unavailable. Please try again in a moment.",
+      msg: "Database is temporarily unavailable. Please check the Render MongoDB environment variable and try again.",
     });
   }
 

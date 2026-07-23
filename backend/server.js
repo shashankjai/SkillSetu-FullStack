@@ -114,7 +114,10 @@ app.use(
 
 // MongoDB connection with a fallback to local DB and clearer errors
 const connectWithFallback = async () => {
-  const primaryUri = process.env.MONGO_URI;
+  const primaryUri =
+    process.env.MONGO_URI ||
+    process.env.MONGODB_URI ||
+    process.env.DATABASE_URL;
   const fallbackUri =
     process.env.MONGO_FALLBACK_URI || "mongodb://127.0.0.1:27017/skillsetu";
 
@@ -122,8 +125,14 @@ const connectWithFallback = async () => {
     serverSelectionTimeoutMS: 5000,
   };
 
+  if (!primaryUri) {
+    console.error(
+      "No MongoDB connection string found. Set MONGO_URI or MONGODB_URI in Render environment variables.",
+    );
+  }
+
   try {
-    await mongoose.connect(primaryUri, connectOptions);
+    await mongoose.connect(primaryUri || fallbackUri, connectOptions);
     console.log("Connected to MongoDB (primary)");
     return true;
   } catch (err) {
