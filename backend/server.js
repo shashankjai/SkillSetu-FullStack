@@ -26,6 +26,9 @@ const reportRoutes = require("./routes/reportRoutes"); // Import reportRoutes
 
 dotenv.config();
 
+mongoose.set("bufferCommands", false);
+mongoose.set("serverSelectionTimeoutMS", 5000);
+
 const app = express();
 const server = http.createServer(app);
 
@@ -119,13 +122,13 @@ const connectWithFallback = async () => {
   try {
     await mongoose.connect(primaryUri);
     console.log("Connected to MongoDB (primary)");
+    return true;
   } catch (err) {
     console.error(
       "Error connecting to primary MongoDB URI:",
       err.message || err,
     );
 
-    // Common cause: SRV DNS lookup failure for mongodb+srv URIs
     if (
       err.code === "ENOTFOUND" ||
       (err.message && err.message.includes("querySrv"))
@@ -136,6 +139,7 @@ const connectWithFallback = async () => {
       try {
         await mongoose.connect(fallbackUri);
         console.log("Connected to MongoDB (fallback local)");
+        return true;
       } catch (err2) {
         console.error(
           "Fallback MongoDB connection also failed:",
@@ -150,7 +154,6 @@ const connectWithFallback = async () => {
     }
   }
 
-  // Seed admin user if connection succeeded
   try {
     if (mongoose.connection.readyState === 1) {
       console.log("MongoDB ready, checking admin user...");
@@ -175,9 +178,20 @@ const connectWithFallback = async () => {
   } catch (seedErr) {
     console.error("Error during admin seeding:", seedErr.message || seedErr);
   }
+
+  return mongoose.connection.readyState === 1;
 };
 
-connectWithFallback();
+const startServer = async () => {
+  await connectWithFallback();
+
+  const port = process.env.PORT || 5000;
+  server.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+};
+
+startServer();
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -212,10 +226,4 @@ notificationSocket.on("connection", (socket) => {
 // Default route
 app.get("/", (req, res) => {
   res.send("SkillSetu API is running");
-});
-
-// Start the server
-const port = process.env.PORT || 5000;
-server.listen(port, () => {
-  console.log(`Server running on port ${port}`);
 });
