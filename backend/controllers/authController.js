@@ -1,7 +1,7 @@
 // controllers/authController.js
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
 
 // Register a new user
 const registerUser = async (req, res) => {
@@ -16,7 +16,7 @@ const registerUser = async (req, res) => {
     // Check if user already exists
     let user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({ msg: 'User already exists' });
+      return res.status(400).json({ msg: "User already exists" });
     }
 
     // Create a new user instance
@@ -31,42 +31,58 @@ const registerUser = async (req, res) => {
     // Generate JWT token
     const payload = { user: { id: user.id } };
 
-    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
-      if (err) throw err;
-      res.json({ token });
-    });
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" },
+      (err, token) => {
+        if (err) {
+          console.error("JWT sign error during registration:", err);
+          return res.status(500).json({ msg: err.message || "Server error" });
+        }
+        res.json({ token });
+      },
+    );
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    console.error("Error in registerUser:", err);
+    res.status(500).json({ msg: err.message || "Server error" });
   }
 };
-
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-
   if (email === process.env.ADMIN_EMAIL) {
-    const adminUser = await User.findOne({ email });
+    try {
+      const adminUser = await User.findOne({ email });
 
-    if (!adminUser) {
-      return res.status(500).json({ msg: 'Admin record missing in DB' });
+      if (!adminUser) {
+        console.error("Admin login attempted but admin record missing.");
+        return res
+          .status(404)
+          .json({ msg: "Admin record not found. Is the database connected?" });
+      }
+
+      const isMatch = await bcrypt.compare(password, adminUser.password);
+      if (!isMatch) {
+        return res.status(401).json({ msg: "Invalid password" });
+      }
+
+      const payload = { user: { id: adminUser._id.toString(), role: "admin" } };
+      const token = jwt.sign(payload, process.env.JWT_SECRET, {
+        expiresIn: "2h",
+      });
+
+      return res.json({
+        token,
+        name: adminUser.name,
+        email: adminUser.email,
+        id: adminUser._id,
+      });
+    } catch (err) {
+      console.error("Error during admin login:", err.message || err);
+      return res.status(500).json({ msg: "Server error during admin login" });
     }
-
-    const isMatch = await bcrypt.compare(password, adminUser.password);
-    if (!isMatch) {
-      return res.status(401).json({ msg: 'Invalid password' });
-    }
-
-    const payload = { user: { id: adminUser._id.toString(), role: 'admin' } };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
-
-    return res.json({
-      token,
-      name: adminUser.name,
-      email: adminUser.email,
-      id: adminUser._id
-    });
   }
 
   // ─── 2) NORMAL USER LOGIN FLOW ─────────────────────────────────────────
@@ -74,34 +90,36 @@ const loginUser = async (req, res) => {
     // Find in DB
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+      return res.status(400).json({ msg: "Invalid credentials" });
     }
 
     // 2️⃣ Reject if blocked
-    if (user.status === 'blocked') {
-      return res.status(403).json({ msg: 'Your account has been blocked. Contact support.' });
+    if (user.status === "blocked") {
+      return res
+        .status(403)
+        .json({ msg: "Your account has been blocked. Contact support." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+      return res.status(400).json({ msg: "Invalid credentials" });
     }
 
     // Issue a standard user token
     const payload = { user: { id: user.id, role: user.role } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: '2h',
+      expiresIn: "2h",
     });
     res.json({
       token,
-      name: user.name,    // Add name
-      email: user.email,  // Add email
-      id: user._id,       // Add _id
-      role: user.role     // Add role
+      name: user.name, // Add name
+      email: user.email, // Add email
+      id: user._id, // Add _id
+      role: user.role, // Add role
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
+    console.error("Error in loginUser:", err.stack || err);
+    res.status(500).json({ msg: err.message || "Server error" });
   }
 };
 module.exports = { registerUser, loginUser };

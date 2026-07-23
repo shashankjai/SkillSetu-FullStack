@@ -110,31 +110,74 @@ app.use(
   express.static(path.join(__dirname, "uploads")),
 );
 
-// MongoDB connection
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(async () => {
-    console.log("Connected to MongoDB");
+// MongoDB connection with a fallback to local DB and clearer errors
+const connectWithFallback = async () => {
+  const primaryUri = process.env.MONGO_URI;
+  const fallbackUri =
+    process.env.MONGO_FALLBACK_URI || "mongodb://127.0.0.1:27017/skillsetu";
 
-    const { ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME, ADMIN_PIC_URL } =
-      process.env;
+  try {
+    await mongoose.connect(primaryUri);
+    console.log("Connected to MongoDB (primary)");
+  } catch (err) {
+    console.error(
+      "Error connecting to primary MongoDB URI:",
+      err.message || err,
+    );
 
-    let admin = await User.findOne({ email: ADMIN_EMAIL });
-    if (!admin) {
-      const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(ADMIN_PASSWORD, salt);
-      admin = new User({
-        name: ADMIN_NAME || "Administrator",
-        email: ADMIN_EMAIL,
-        password: hash,
-        role: "admin",
-        profilePicture: ADMIN_PIC_URL ? path.basename(ADMIN_PIC_URL) : "",
-      });
-      await admin.save();
-      console.log("🚀 Admin user seeded:", ADMIN_EMAIL);
+    // Common cause: SRV DNS lookup failure for mongodb+srv URIs
+    if (
+      err.code === "ENOTFOUND" ||
+      (err.message && err.message.includes("querySrv"))
+    ) {
+      console.warn(
+        "SRV DNS lookup failed for primary MongoDB URI. Attempting fallback DB...",
+      );
+      try {
+        await mongoose.connect(fallbackUri);
+        console.log("Connected to MongoDB (fallback local)");
+      } catch (err2) {
+        console.error(
+          "Fallback MongoDB connection also failed:",
+          err2.message || err2,
+        );
+        console.error(
+          "Please check your MONGO_URI environment variable, network DNS, or start a local MongoDB instance.",
+        );
+      }
+    } else {
+      console.error("Please check your MONGO_URI and network connectivity.");
     }
-  })
-  .catch((err) => console.error("Error connecting to MongoDB:", err));
+  }
+
+  // Seed admin user if connection succeeded
+  try {
+    if (mongoose.connection.readyState === 1) {
+      console.log("MongoDB ready, checking admin user...");
+      const { ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME, ADMIN_PIC_URL } =
+        process.env;
+
+      let admin = await User.findOne({ email: ADMIN_EMAIL });
+      if (!admin) {
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(ADMIN_PASSWORD, salt);
+        admin = new User({
+          name: ADMIN_NAME || "Administrator",
+          email: ADMIN_EMAIL,
+          password: hash,
+          role: "admin",
+          profilePicture: ADMIN_PIC_URL ? path.basename(ADMIN_PIC_URL) : "",
+        });
+        await admin.save();
+        console.log("🚀 Admin user seeded:", ADMIN_EMAIL);
+      }
+    }
+  } catch (seedErr) {
+    console.error("Error during admin seeding:", seedErr.message || seedErr);
+  }
+};
+
+connectWithFallback();
 
 // Routes
 app.use("/api/auth", authRoutes);
