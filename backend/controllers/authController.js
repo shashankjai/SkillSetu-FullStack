@@ -1,6 +1,5 @@
 // controllers/authController.js
 const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 
@@ -52,13 +51,6 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
-
-  if (mongoose.connection.readyState !== 1) {
-    console.error("Login attempted while MongoDB is not connected");
-    return res.status(503).json({
-      msg: "Database is temporarily unavailable. Please check the Render MongoDB environment variable and try again.",
-    });
-  }
 
   if (email === process.env.ADMIN_EMAIL) {
     try {

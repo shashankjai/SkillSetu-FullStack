@@ -114,25 +114,12 @@ app.use(
 
 // MongoDB connection with a fallback to local DB and clearer errors
 const connectWithFallback = async () => {
-  const primaryUri =
-    process.env.MONGO_URI ||
-    process.env.MONGODB_URI ||
-    process.env.DATABASE_URL;
+  const primaryUri = process.env.MONGO_URI;
   const fallbackUri =
     process.env.MONGO_FALLBACK_URI || "mongodb://127.0.0.1:27017/skillsetu";
 
-  const connectOptions = {
-    serverSelectionTimeoutMS: 5000,
-  };
-
-  if (!primaryUri) {
-    console.error(
-      "No MongoDB connection string found. Set MONGO_URI or MONGODB_URI in Render environment variables.",
-    );
-  }
-
   try {
-    await mongoose.connect(primaryUri || fallbackUri, connectOptions);
+    await mongoose.connect(primaryUri);
     console.log("Connected to MongoDB (primary)");
     return true;
   } catch (err) {
@@ -149,7 +136,7 @@ const connectWithFallback = async () => {
         "SRV DNS lookup failed for primary MongoDB URI. Attempting fallback DB...",
       );
       try {
-        await mongoose.connect(fallbackUri, connectOptions);
+        await mongoose.connect(fallbackUri);
         console.log("Connected to MongoDB (fallback local)");
         return true;
       } catch (err2) {
@@ -194,16 +181,7 @@ const connectWithFallback = async () => {
   return mongoose.connection.readyState === 1;
 };
 
-const startServer = async () => {
-  await connectWithFallback();
-
-  const port = process.env.PORT || 5000;
-  server.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
-};
-
-startServer();
+connectWithFallback();
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -238,4 +216,10 @@ notificationSocket.on("connection", (socket) => {
 // Default route
 app.get("/", (req, res) => {
   res.send("SkillSetu API is running");
+});
+
+// Start the server
+const port = process.env.PORT || 5000;
+server.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
