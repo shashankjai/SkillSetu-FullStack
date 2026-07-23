@@ -27,7 +27,6 @@ const reportRoutes = require("./routes/reportRoutes"); // Import reportRoutes
 dotenv.config();
 
 mongoose.set("bufferCommands", false);
-mongoose.set("serverSelectionTimeoutMS", 5000);
 
 const app = express();
 const server = http.createServer(app);
@@ -119,8 +118,12 @@ const connectWithFallback = async () => {
   const fallbackUri =
     process.env.MONGO_FALLBACK_URI || "mongodb://127.0.0.1:27017/skillsetu";
 
+  const connectOptions = {
+    serverSelectionTimeoutMS: 5000,
+  };
+
   try {
-    await mongoose.connect(primaryUri);
+    await mongoose.connect(primaryUri, connectOptions);
     console.log("Connected to MongoDB (primary)");
     return true;
   } catch (err) {
@@ -137,7 +140,7 @@ const connectWithFallback = async () => {
         "SRV DNS lookup failed for primary MongoDB URI. Attempting fallback DB...",
       );
       try {
-        await mongoose.connect(fallbackUri);
+        await mongoose.connect(fallbackUri, connectOptions);
         console.log("Connected to MongoDB (fallback local)");
         return true;
       } catch (err2) {
