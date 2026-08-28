@@ -32,10 +32,12 @@ const LoginPage = () => {
       setError("Please enter your email address.");
       return;
     }
+
     if (!/\S+@\S+\.\S+/.test(email)) {
       setError("Please enter a valid email address.");
       return;
     }
+
     if (!password.trim()) {
       setError("Password is required.");
       return;
@@ -43,6 +45,7 @@ const LoginPage = () => {
 
     // API call
     dispatch(loginStart());
+
     try {
       const response = await axios.post(`${API_URL}/api/auth/login`, {
         email,
@@ -50,22 +53,37 @@ const LoginPage = () => {
       });
 
       const token = response.data.token;
-      
+
       // Safely decode token
       let decoded;
+
       try {
         // Dynamically import jwt-decode if needed, or use a safer approach
-        const { jwtDecode } = await import('jwt-decode');
+        const { jwtDecode } = await import("jwt-decode");
         decoded = jwtDecode(token);
       } catch (decodeError) {
         console.error("Token decode error:", decodeError);
+
         // Fallback: try to parse manually if possible
         try {
-          const base64Url = token.split('.')[1];
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-          }).join(''));
+          const base64Url = token.split(".")[1];
+
+          const base64 = base64Url
+            .replace(/-/g, "+")
+            .replace(/_/g, "/");
+
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split("")
+              .map(function (c) {
+                return (
+                  "%" +
+                  ("00" + c.charCodeAt(0).toString(16)).slice(-2)
+                );
+              })
+              .join("")
+          );
+
           decoded = JSON.parse(jsonPayload);
         } catch (manualError) {
           throw new Error("Invalid token format");
@@ -74,18 +92,42 @@ const LoginPage = () => {
 
       const role = decoded?.user?.role || "user";
 
+      /*
+       * Create the same user object that will be stored
+       * in localStorage and Redux.
+       */
+      const user = {
+        name: response.data.name || decoded?.user?.name || "",
+        email:
+          response.data.email ||
+          decoded?.user?.email ||
+          email,
+        _id:
+          response.data.id ||
+          decoded?.user?.id ||
+          "",
+        role: role,
+      };
+
       localStorage.setItem("token", token);
+
       localStorage.setItem(
         "user",
-        JSON.stringify({
-          name: response.data.name || decoded?.user?.name || "",
-          email: response.data.email || decoded?.user?.email || email,
-          _id: response.data.id || decoded?.user?.id || "",
-          role: role,
-        })
+        JSON.stringify(user)
       );
 
-      dispatch(loginSuccess(token));
+      /*
+       * FIX:
+       *
+       * Previously:
+       * dispatch(loginSuccess(token));
+       *
+       * This was storing the JWT token inside
+       * Redux auth.user.
+       *
+       * Now we store the actual user object.
+       */
+      dispatch(loginSuccess(user));
 
       // Redirect based on role
       if (role === "admin") {
@@ -95,7 +137,12 @@ const LoginPage = () => {
       }
     } catch (err) {
       console.error("Login error:", err);
-      const errorMessage = err.response?.data?.msg || err.message || "Something went wrong!";
+
+      const errorMessage =
+        err.response?.data?.msg ||
+        err.message ||
+        "Something went wrong!";
+
       dispatch(loginFailure(errorMessage));
       setError(errorMessage);
     }
@@ -120,6 +167,7 @@ const LoginPage = () => {
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">
             SkillSetu
           </h1>
+
           <p className="text-sm sm:text-base md:text-lg text-gray-600 italic mt-1">
             Empower your skills. Connect. Grow.
           </p>
@@ -130,6 +178,7 @@ const LoginPage = () => {
           <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-4 sm:mb-6">
             Welcome Back
           </h2>
+
           {/* Error Message */}
           {error && (
             <p className="text-red-500 font-semibold text-center mb-3 bg-white/90 rounded-lg py-2 px-3">
@@ -137,19 +186,26 @@ const LoginPage = () => {
             </p>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4 sm:space-y-6"
+          >
             {/* Email Field */}
             <div className="relative">
               <FiMail className="absolute top-1/2 left-3 transform -translate-y-1/2 text-blue-500" />
+
               <input
                 type="email"
                 placeholder="Enter Email"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
+
                   if (
-                    error === "Please enter your email address." ||
-                    error === "Please enter a valid email address."
+                    error ===
+                      "Please enter your email address." ||
+                    error ===
+                      "Please enter a valid email address."
                   ) {
                     setError("");
                   }
@@ -161,23 +217,32 @@ const LoginPage = () => {
             {/* Password Field */}
             <div className="relative">
               <FiLock className="absolute top-1/2 left-3 transform -translate-y-1/2 text-blue-500" />
+
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter Password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
+
                   if (error === "Password is required.") {
                     setError("");
                   }
                 }}
                 className="pl-10 pr-10 py-2 sm:py-3 w-full rounded-full border border-gray-300 outline-none text-sm sm:text-base md:text-lg text-gray-900 bg-gray-100 placeholder-gray-500 focus:bg-white focus:ring-2 focus:ring-blue-500"
               />
+
               <div
                 className="absolute top-1/2 right-3 transform -translate-y-1/2 text-blue-500 cursor-pointer"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() =>
+                  setShowPassword(!showPassword)
+                }
               >
-                {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                {showPassword ? (
+                  <AiOutlineEyeInvisible />
+                ) : (
+                  <AiOutlineEye />
+                )}
               </div>
             </div>
 
@@ -194,7 +259,10 @@ const LoginPage = () => {
           <div className="text-center mt-4">
             <p className="text-sm sm:text-base md:text-lg text-white">
               Don't have an account?{" "}
-              <Link to="/register" className="underline hover:text-gray-200">
+              <Link
+                to="/register"
+                className="underline hover:text-gray-200"
+              >
                 Register here
               </Link>
             </p>

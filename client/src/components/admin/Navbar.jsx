@@ -1,37 +1,173 @@
-// client/src/components/admin/Navbar.jsx
+import React, { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Menu, X } from "lucide-react";
+import { logout } from "../../redux/slices/authSlice";
 
-import React from 'react';
-import { FaBars } from 'react-icons/fa';
+const Navbar = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-const AdminNavbar = ({ adminName, profileImage, onToggleSidebar }) => {
+  const reduxUser = useSelector((state) => state.auth.user);
+
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Redux is the UI source of truth,
+  // with localStorage as the persistence layer.
+  const isAuthenticated = Boolean(localStorage.getItem("token"));
+
+  const user = reduxUser;
+
+  const isAdmin = user?.role === "admin";
+
+  const handleLogout = () => {
+    // Remove persisted authentication data
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    // Clear Redux authentication state
+    dispatch(logout());
+
+    // Close mobile menu
+    setMenuOpen(false);
+
+    // Redirect to login
+    navigate("/login", { replace: true });
+  };
+
+  const handleNavigation = () => {
+    setMenuOpen(false);
+  };
+
+  const navLinkClass = ({ isActive }) =>
+    `block px-3 py-2 rounded-md transition-colors duration-300 font-semibold ${
+      isActive
+        ? "text-blue-700 border-b-2 border-blue-700"
+        : "text-white hover:text-blue-700"
+    }`;
+
   return (
-    <header className="fixed top-0 left-0 w-full h-16 bg-blue-900 text-white shadow-md z-40 flex items-center justify-between px-6">
-      {/* Left - Hamburger */}
-      <button onClick={onToggleSidebar} className="text-white text-xl focus:outline-none">
-        <FaBars />
-      </button>
+    <nav className="bg-white/20 backdrop-blur-lg border-b border-white/30 shadow-md text-white font-bold">
+      <div className="max-w-screen-xl mx-auto flex items-center justify-between p-4">
 
-      {/* Right - Admin Greeting */}
-      <div className="flex items-center space-x-4">
-        {/* <img
-          src={profileImage}
-          alt="Admin"
+        <NavLink
+          to="/"
+          onClick={handleNavigation}
+          className="text-3xl font-extrabold text-white drop-shadow-md"
+        >
+          SkillSetu
+        </NavLink>
 
-          className="w-10 h-10 rounded-full object-cover border-2 border-white"
-        /> */}
-        <img
-          src={profileImage}
-          alt="Admin"
-          className="w-10 h-10 rounded-full object-cover border-2 border-white"
-        />
+        <div className="md:hidden">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="focus:outline-none"
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
 
-        <span className="text-lg font-semibold">Hello, Mr. {adminName}</span>
+        <div
+          className={`flex-1 justify-end items-center ${
+            menuOpen ? "block" : "hidden"
+          } md:flex`}
+        >
+          <div className="flex flex-col md:flex-row md:space-x-4 lg:space-x-8 text-xl">
 
+            {/* Home */}
+            <NavLink
+              to="/"
+              onClick={handleNavigation}
+              className={navLinkClass}
+            >
+              Home
+            </NavLink>
+
+            {isAuthenticated && user ? (
+              <>
+                {/* Profile */}
+                <NavLink
+                  to="/profile"
+                  onClick={handleNavigation}
+                  className={navLinkClass}
+                >
+                  Profile
+                </NavLink>
+
+                {/* Skill Matching */}
+                <NavLink
+                  to="/skill-matching"
+                  onClick={handleNavigation}
+                  className={navLinkClass}
+                >
+                  Skill Matching
+                </NavLink>
+
+                {/* Chat */}
+                <NavLink
+                  to="/chat"
+                  onClick={handleNavigation}
+                  className={navLinkClass}
+                >
+                  Chat
+                </NavLink>
+
+                {/* About Us */}
+                <NavLink
+                  to="/about-us"
+                  onClick={handleNavigation}
+                  className={navLinkClass}
+                >
+                  About Us
+                </NavLink>
+
+                {/* Admin Dashboard */}
+                {isAdmin && (
+                  <NavLink
+                    to="/admin"
+                    onClick={handleNavigation}
+                    className={navLinkClass}
+                  >
+                    Admin Dashboard
+                  </NavLink>
+                )}
+
+                {/* Logout */}
+                <button
+                  onClick={handleLogout}
+                  className="mt-2 md:mt-0 bg-blue-700 px-4 py-2 rounded hover:bg-red-600 font-semibold text-white transition-colors duration-300"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                {/* Login */}
+                <NavLink
+                  to="/login"
+                  onClick={handleNavigation}
+                  className={navLinkClass}
+                >
+                  Login
+                </NavLink>
+
+                {/* Sign Up */}
+                <NavLink
+                  to="/register"
+                  onClick={handleNavigation}
+                  className={navLinkClass}
+                >
+                  Sign Up
+                </NavLink>
+              </>
+            )}
+
+          </div>
+        </div>
       </div>
-    </header>
+    </nav>
   );
 };
 
-export default AdminNavbar;
-
-
+export default Navbar;
