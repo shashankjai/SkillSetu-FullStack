@@ -31,8 +31,35 @@ body,
   min-width: 0;
   overflow-x: hidden;
   font-family: Inter, "Segoe UI", sans-serif;
-  background: linear-gradient(180deg, #f4f7fb 0%, #edf4ff 100%);
-  color: var(--surface-800);
+  background: transparent;
+  color: #e2e8f0;
+}
+
+body {
+  position: relative;
+  isolation: isolate;
+  background: #07111f;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: -8%;
+  background-image: linear-gradient(rgba(7, 17, 31, 0.42), rgba(7, 17, 31, 0.58)), url("./assets/auth-bg.jpg");
+  background-size: cover;
+  background-position: center;
+  animation: global-background-drift 18s ease-in-out infinite alternate;
+}
+
+@keyframes global-background-drift {
+  from {
+    transform: scale(1.04) translate3d(-1%, -1%, 0);
+  }
+
+  to {
+    transform: scale(1.12) translate3d(1%, 1%, 0);
+  }
 }
 
 body {
@@ -40,6 +67,18 @@ body {
   margin: 0;
   line-height: 1.5;
   font-weight: 400;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body,
+  #root {
+    animation: none;
+  }
+
+  body::before {
+    animation: none;
+  }
 }
 
 img,
@@ -63,6 +102,14 @@ textarea {
 
 button {
   cursor: pointer;
+}
+
+.min-h-screen.bg-slate-950 {
+  background-color: rgba(7, 17, 31, 0.26) !important;
+}
+
+.chat-page.bg-slate-950 {
+  background-color: rgba(7, 17, 31, 0.26) !important;
 }
 
 .bg-white {

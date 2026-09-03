@@ -497,7 +497,7 @@ const ChatPage = () => {
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">
       <Background />
-      <div className="chat-page flex min-h-screen flex-col overflow-x-hidden bg-slate-950 text-white">
+      <div className="chat-page flex min-h-screen flex-col overflow-x-hidden bg-slate-950/60 text-white">
         <Navbar />
         <div className="flex flex-1 flex-col md:flex-row">
           <button

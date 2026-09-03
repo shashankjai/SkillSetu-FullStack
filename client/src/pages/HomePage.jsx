@@ -49,6 +49,7 @@ const Home = () => {
     <div className="home-page-shell">
       <Navbar />
       <section className="hero-section">
+        <div className="hero-visual" aria-hidden="true" />
         <div className="hero-content-wrap">
           <div className="hero-copy">
             <span className="eyebrow">Learn from people, not just courses</span>
@@ -148,7 +149,7 @@ const Home = () => {
       </section>
 
       <section className="features-section">
-        <div className="section-heading">
+        <div className="section-heading center-heading">
           <span className="eyebrow dark">Why SkillSetu works</span>
           <h2>Practical learning, built around real people.</h2>
         </div>
@@ -165,7 +166,7 @@ const Home = () => {
       </section>
 
       <section className="workflow-section">
-        <div className="section-heading narrow">
+        <div className="section-heading center-heading narrow">
           <span className="eyebrow dark">How it works</span>
           <h2>Start with one skill, grow into a full learning circle.</h2>
         </div>
