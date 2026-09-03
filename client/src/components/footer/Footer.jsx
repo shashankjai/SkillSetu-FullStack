@@ -22,7 +22,6 @@ const Footer = () => {
     <footer className="site-footer">
       <div className="footer-grid">
         <div className="footer-brand">
-          <span className="brand-mark">S</span>
           <div>
             <h2>SkillSetu</h2>
             <p>
