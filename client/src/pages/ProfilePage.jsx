@@ -94,10 +94,7 @@ const ProfilePage = () => {
           }),
         ]);
 
-        const now = new Date();
-        setPendingSessions(
-          p.data.filter((session) => new Date(session.sessionDate) >= now),
-        );
+        setPendingSessions(p.data);
         setAcceptedSessions(a.data);
         setCompletedSessions(co.data);
         setCanceledSessions(c.data);
