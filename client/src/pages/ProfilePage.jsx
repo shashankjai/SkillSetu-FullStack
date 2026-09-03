@@ -102,7 +102,17 @@ const ProfilePage = () => {
         setError("Error fetching sessions");
       }
     };
+
     fetchSessions();
+
+    const refreshOnFocus = () => fetchSessions();
+    const refreshInterval = window.setInterval(fetchSessions, 5000);
+    window.addEventListener("focus", refreshOnFocus);
+
+    return () => {
+      window.clearInterval(refreshInterval);
+      window.removeEventListener("focus", refreshOnFocus);
+    };
   }, []);
 
   // Modal handlers
@@ -547,7 +557,11 @@ const ProfilePage = () => {
                           </div>
                           <div className="flex items-center space-x-1">
                             <FiClock size={12} className="md:w-4 md:h-4" />
-                            <span>{formatTime(s.sessionDate)}</span>
+                            <span>
+                              {s.newMeetingTime ||
+                                s.sessionTime ||
+                                "Time not set"}
+                            </span>
                           </div>
                         </div>
 
