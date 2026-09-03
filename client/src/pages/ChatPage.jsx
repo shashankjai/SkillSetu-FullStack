@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { FiCalendar, FiClock } from "react-icons/fi";
 import Footer from "../components/footer/Footer";
 import Background from "../components/background/Background";
+import VideoCallModal from "../components/video/VideoCallModal";
 import "../components/background/Background.css";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
@@ -30,6 +31,8 @@ const ChatPage = () => {
   const [description, setDescription] = useState("");
   const [screenshot, setScreenshot] = useState(null);
   const [reportSuccess, setReportSuccess] = useState(false); // State for success message
+  const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(() => new Date());
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -95,6 +98,11 @@ const ChatPage = () => {
       socketIo.disconnect();
     };
   }, [sessionId]);
+
+  useEffect(() => {
+    const timeRefresh = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timeRefresh);
+  }, []);
 
   // Set up the **Notification Socket.io connection** (separate from the chat socket)
   useEffect(() => {
@@ -182,19 +190,8 @@ const ChatPage = () => {
       console.log("File appended to FormData:", file); // Debugging: log file data
     }
 
-    // Emit message to server (via Socket.IO) with or without file
-    socket.emit("send_message", {
-      sessionId: selectedConnection._id,
-      content: message,
-      senderId: userData?._id,
-      receiverId:
-        selectedConnection.userId1._id === userData?._id
-          ? selectedConnection.userId2._id
-          : selectedConnection.userId1._id,
-      file: file,
-    });
-
-    // Store the message in the backend
+    // Store the message in the backend; Socket.IO chat is already scoped by session room
+    // on the backend for receive_message distribution.
     axios
       .post(`${API_URL}/api/sessions/message`, formData, {
         headers: { "x-auth-token": token },
@@ -432,26 +429,43 @@ const ChatPage = () => {
     return date.toLocaleDateString(); // This will display the date in a format like "MM/DD/YYYY"
   };
 
+  const getSessionStartDateTime = (session) => {
+    if (!session) return null;
+
+    const sessionDate = session.newMeetingDate || session.sessionDate;
+    const sessionTime = session.newMeetingTime || session.sessionTime;
+
+    if (!sessionDate || !sessionTime) return null;
+
+    const dateOnly = new Date(sessionDate).toISOString().slice(0, 10);
+    const sessionDateTime = new Date(`${dateOnly}T${sessionTime}`);
+    return Number.isNaN(sessionDateTime.getTime()) ? null : sessionDateTime;
+  };
+
+  const canStartVideoCall =
+    selectedConnection &&
+    selectedConnection.status === "accepted" &&
+    getSessionStartDateTime(selectedConnection) &&
+    getSessionStartDateTime(selectedConnection) <= currentTime;
+
   return (
-    <div className="min-h-screen relative overflow-x-hidden">
+    <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">
       <Background />
-      <div className="chat-page flex flex-col min-h-screen overflow-x-hidden">
+      <div className="chat-page flex min-h-screen flex-col overflow-x-hidden bg-slate-950 text-white">
         <Navbar />
         <div className="flex flex-1 flex-col md:flex-row">
           <button
-            className="md:hidden fixed top-4 left-4 z-50 p-2 bg-blue-600 text-white rounded-lg shadow-lg"
+            className="md:hidden fixed top-4 left-4 z-50 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 p-2 text-white shadow-lg"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             ☰
           </button>
           {/* Left Panel: List of Connections */}
           <div
-            className={`left-panel fixed z-40 top-0 bottom-0 left-0 w-3/4 sm:w-2/4 md:w-1/4 min-h-screen p-6 bg-white/10 backdrop-blur-md shadow-xl border border-white/20 transform transition-transform duration-300 ease-in-out ${isMenuOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static md:block`}
+            className={`left-panel fixed z-40 top-0 bottom-0 left-0 w-3/4 sm:w-2/4 md:w-1/4 min-h-screen border border-white/10 bg-slate-950/90 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.5)] backdrop-blur-xl transition-transform duration-300 ease-in-out ${isMenuOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static md:block`}
           >
-            <h2 className="text-2xl font-semibold text-gray-800">
-              Connections
-            </h2>
-            <div className="space-y-4 mt-6 overflow-auto max-h-[80vh]">
+            <h2 className="text-2xl font-semibold text-white">Connections</h2>
+            <div className="mt-6 max-h-[80vh] space-y-4 overflow-auto">
               {connections.length > 0 ? (
                 connections.map((connection) => {
                   const isSelected =
@@ -460,21 +474,21 @@ const ChatPage = () => {
                   return (
                     <div
                       key={connection._id}
-                      className={`p-4 rounded-lg shadow-lg cursor-pointer 
+                      className={`cursor-pointer rounded-2xl border p-4 shadow-lg transition duration-300 
           ${
             isSelected
-              ? "bg-blue-600 border-2 border-white"
-              : "bg-gradient-to-br from-blue-400 via-blue-300 to-blue-200 hover:bg-indigo-100"
+              ? "border-blue-400 bg-gradient-to-r from-blue-600 to-indigo-600"
+              : "border-white/10 bg-white/5 hover:bg-white/10"
           }`}
                       onClick={() => handleSelectConnection(connection)}
                     >
                       <p className="font-semibold text-white">
                         {getOtherUserName(connection)}
                       </p>
-                      <p className="text-white">
+                      <p className="text-slate-200">
                         Skill: {connection.skill || "Eclipse OCL"}
                       </p>
-                      <p className="text-white">
+                      <p className="text-slate-200">
                         {formatDate(connection.sessionDate)} at{" "}
                         {connection.sessionTime}
                       </p>
@@ -482,26 +496,26 @@ const ChatPage = () => {
                   );
                 })
               ) : (
-                <p className="text-white">No connections available.</p>
+                <p className="text-slate-300">No connections available.</p>
               )}
             </div>
           </div>
           {/* Right Panel: Chat with Selected Connection */}
-          <div className="chat-container w-full md:flex-1 min-h-screen p-2 md:p-6 bg-white/10 backdrop-blur-md rounded-xl shadow-xl border border-white/20 overflow-hidden md:ml-0">
+          <div className="chat-container min-h-screen w-full overflow-hidden rounded-xl border border-white/10 bg-slate-950/70 p-2 shadow-[0_20px_50px_rgba(15,23,42,0.35)] backdrop-blur-md md:ml-0 md:flex-1 md:p-6">
             {selectedConnection && (
               <>
-                <h2 className="text-3xl font-semibold mb-4 text-gray-800">
+                <h2 className="mb-4 text-3xl font-semibold text-white">
                   Chat with {getChatUserName()}
                 </h2>
-                <p className="text-white">
+                <p className="text-slate-200">
                   Skill: {selectedConnection.skill || "Eclipse OCL"}
                 </p>
-                <div className="messages-container bg-gradient-to-br from-blue-400 via-blue-300 to-blue-200 p-4 rounded-lg shadow-lg mb-6 max-h-[55vh] md:max-h-[65vh] overflow-auto">
+                <div className="messages-container mb-6 max-h-[55vh] overflow-auto rounded-2xl border border-white/10 bg-slate-900/80 p-4 shadow-inner shadow-blue-900/30 md:max-h-[65vh]">
                   {messages.length > 0 ? (
                     messages.map((msg, index) => (
                       <div
                         key={index}
-                        className="message mb-4 p-4 bg-white via-blue-400 to-blue-300 rounded-lg text-left bg-blue-600 text-grey-700 "
+                        className="message mb-4 rounded-2xl border border-blue-500/20 bg-gradient-to-r from-blue-600/80 to-indigo-600/80 p-4 text-left text-white shadow-lg"
                       >
                         {msg.senderId && msg.senderId._id === loggedInUser._id}
 
@@ -532,22 +546,26 @@ const ChatPage = () => {
                       </div>
                     ))
                   ) : (
-                    <p className="text-gray-400">No messages yet</p>
+                    <p className="text-slate-400">No messages yet</p>
                   )}
                 </div>
 
                 {/* Feedback Display if session is completed or canceled */}
                 {isSessionCompletedOrCanceled && (
-                  <div className="feedback-display bg-gradient-to-br from-blue-400 via-blue-300 to-blue-200 p-4 rounded-lg shadow-lg mb-6">
-                    <h3 className="font-semibold text-gray-800">
+                  <div className="feedback-display mb-6 rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_20px_40px_rgba(15,23,42,0.25)]">
+                    <h3 className="font-semibold text-blue-200">
                       Feedback from User 1:
                     </h3>
-                    <p>{selectedConnection?.feedbackByUser1}</p>
+                    <p className="text-slate-200">
+                      {selectedConnection?.feedbackByUser1}
+                    </p>
 
-                    <h3 className="font-semibold text-gray-800 mt-4">
+                    <h3 className="mt-4 font-semibold text-blue-200">
                       Feedback from User 2:
                     </h3>
-                    <p>{selectedConnection?.feedbackByUser2}</p>
+                    <p className="text-slate-200">
+                      {selectedConnection?.feedbackByUser2}
+                    </p>
                   </div>
                 )}
 
@@ -558,6 +576,23 @@ const ChatPage = () => {
 
                 {/* Buttons Row */}
                 <div className="flex flex-wrap justify-center items-center gap-4 mt-4">
+                  {/* Start Video Call Button */}
+                  {selectedConnection && (
+                    <button
+                      onClick={() => setIsVideoCallOpen(true)}
+                      disabled={!canStartVideoCall}
+                      className={`px-4 py-2 rounded-lg font-semibold text-white shadow-lg transition duration-300 ease-in-out ${
+                        canStartVideoCall
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500"
+                          : "bg-slate-500/60 cursor-not-allowed"
+                      }`}
+                    >
+                      {canStartVideoCall
+                        ? "Start Video Call"
+                        : "Video call opens when the session time starts"}
+                    </button>
+                  )}
+
                   {/* Schedule Next Meeting Button */}
                   {shouldShowScheduleButton && (
                     <button
@@ -617,11 +652,11 @@ const ChatPage = () => {
                   {/* Close Button */}
                   {/* Feedback Modal (only show if feedback hasn't been given yet) */}
                   {isFeedbackModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-blue-400 via-blue-300 to-blue-200 bg-opacity-10 backdrop-blur-sm">
-                      <div className="w-[90%] max-w-md bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 text-white p-8 rounded-2xl shadow-2xl">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm">
+                      <div className="w-[90%] max-w-md rounded-2xl border border-white/10 bg-slate-900/95 p-8 text-white shadow-2xl">
                         <button
                           onClick={closeFeedbackModal}
-                          className="absolute top-3 right-4 text-blue-600 text-2xl hover:text-gray-200 transition"
+                          className="absolute right-4 top-3 text-2xl text-blue-300 transition hover:text-white"
                         >
                           &times;
                         </button>
@@ -633,7 +668,7 @@ const ChatPage = () => {
                         <select
                           onChange={(e) => setRating(e.target.value)}
                           value={rating}
-                          className="w-full p-3 rounded-lg bg-white text-black font-medium focus:outline-none focus:ring-2 focus:ring-blue-300"
+                          className="w-full rounded-lg border border-slate-600 bg-slate-800 p-3 font-medium text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                           {[...Array(5)].map((_, index) => (
                             <option key={index} value={index + 1}>
@@ -647,12 +682,12 @@ const ChatPage = () => {
                           onChange={(e) => setFeedback(e.target.value)}
                           placeholder="Write your feedback..."
                           rows="4"
-                          className="mt-4 w-full p-3 rounded-lg bg-white text-black font-medium focus:outline-none focus:ring-2 focus:ring-blue-300"
+                          className="mt-4 w-full rounded-lg border border-slate-600 bg-slate-800 p-3 font-medium text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
 
                         <button
                           onClick={closeFeedbackModal}
-                          className="bg-white text-[#4361ee] border border-[#4361ee] py-3 px-4 rounded-lg mt-6 w-full transition duration-300 text-lg font-semibold"
+                          className="mt-6 w-full rounded-lg border border-blue-500 bg-blue-600 px-4 py-3 text-lg font-semibold text-white transition duration-300 hover:bg-blue-500"
                         >
                           Submit Feedback
                         </button>
@@ -663,8 +698,8 @@ const ChatPage = () => {
 
                 {/* Schedule Modal */}
                 {isScheduleModalOpen && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-blue-400 via-blue-300 to-blue-200 bg-opacity-10 backdrop-blur-sm">
-                    <div className="w-[90%] max-w-md bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 text-white p-8 rounded-2xl shadow-2xl">
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm">
+                    <div className="w-[90%] max-w-md rounded-2xl border border-white/10 bg-slate-900/95 p-8 text-white shadow-2xl">
                       <h2 className="text-2xl font-bold mb-5 text-center">
                         Schedule Your Next Meeting
                       </h2>
@@ -676,7 +711,7 @@ const ChatPage = () => {
                             type="date"
                             value={scheduledDate}
                             onChange={(e) => setScheduledDate(e.target.value)}
-                            className="p-3 rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-blue-300"
+                            className="rounded-lg border border-slate-600 bg-slate-800 p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </label>
 
@@ -686,21 +721,21 @@ const ChatPage = () => {
                             type="time"
                             value={scheduledTime}
                             onChange={(e) => setScheduledTime(e.target.value)}
-                            className="p-3 rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-blue-300"
+                            className="rounded-lg border border-slate-600 bg-slate-800 p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </label>
                       </div>
 
                       <button
                         onClick={handleScheduleSession}
-                        className="bg-white text-[#4361ee] border border-[#4361ee] py-3 px-4 rounded-lg mt-6 w-full transition duration-300 text-lg font-semibold"
+                        className="mt-6 w-full rounded-lg border border-blue-500 bg-blue-600 px-4 py-3 text-lg font-semibold text-white transition duration-300 hover:bg-blue-500"
                       >
                         Confirm Schedule
                       </button>
 
                       <button
                         onClick={closeScheduleModal}
-                        className="absolute top-3 right-4 text-blue-600 text-2xl hover:text-gray-200 transition"
+                        className="absolute right-4 top-3 text-2xl text-blue-300 transition hover:text-white"
                       >
                         &times;
                       </button>
@@ -710,11 +745,11 @@ const ChatPage = () => {
 
                 {/* Report Modal */}
                 {isReportModalOpen && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-blue-400 via-blue-300 to-blue-200 bg-opacity-10 backdrop-blur-sm">
-                    <div className="w-[90%] max-w-md bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 text-white p-8 rounded-2xl shadow-2xl">
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm">
+                    <div className="w-[90%] max-w-md rounded-2xl border border-white/10 bg-slate-900/95 p-8 text-white shadow-2xl">
                       <button
                         onClick={closeReportModal}
-                        className="absolute top-3 right-4 text-blue-600 text-2xl hover:text-gray-200 transition"
+                        className="absolute right-4 top-3 text-2xl text-blue-300 transition hover:text-white"
                       >
                         &times;
                       </button>
@@ -728,7 +763,7 @@ const ChatPage = () => {
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
                             required
-                            className="mt-2 w-full p-3 border rounded-lg bg-gray-50 text-black"
+                            className="mt-2 w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-white"
                           >
                             <option value="">Select Reason</option>
                             <option value="Spam">Spam</option>
@@ -749,7 +784,7 @@ const ChatPage = () => {
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Describe the issue"
                             required
-                            className="mt-2 w-full p-3 border text-black rounded-lg bg-gray-50 h-32"
+                            className="mt-2 h-32 w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-white placeholder:text-slate-400"
                           />
                         </div>
 
@@ -761,7 +796,7 @@ const ChatPage = () => {
                             type="file"
                             onChange={(e) => setScreenshot(e.target.files[0])}
                             accept="image/*"
-                            className="mt-2 w-full p-3 border rounded-lg bg-gray-50 text-black"
+                            className="mt-2 w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-white"
                             placeholder="Upload Screenshot"
                           />
                         </div>
@@ -769,7 +804,7 @@ const ChatPage = () => {
                         <div className="flex justify-end">
                           <button
                             type="submit"
-                            className="bg-white text-[#4361ee] border border-[#4361ee] py-3 px-4 rounded-lg mt-6 w-full transition duration-300 text-lg font-semibold"
+                            className="mt-6 w-full rounded-lg border border-blue-500 bg-blue-600 px-4 py-3 text-lg font-semibold text-white transition duration-300 hover:bg-blue-500"
                           >
                             Submit Report
                           </button>
@@ -789,6 +824,13 @@ const ChatPage = () => {
         </div>
         <Footer />
       </div>
+
+      <VideoCallModal
+        isOpen={isVideoCallOpen}
+        onClose={() => setIsVideoCallOpen(false)}
+        session={selectedConnection}
+        currentUserId={loggedInUser?._id}
+      />
     </div>
   );
 };

@@ -15,6 +15,7 @@ const userRoutes = require("./routes/userRoutes");
 const matchRoutes = require("./routes/matchRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const videoCallRoutes = require("./routes/videoCallRoutes");
 const {
   setSocketIO: setSessionSocketIO,
 } = require("./controllers/sessionController");
@@ -35,22 +36,35 @@ const server = http.createServer(app);
 const FRONTEND_URLS =
   process.env.FRONTEND_URLS ||
   process.env.FRONTEND_URL ||
-  "http://localhost:5173,https://skillsetu-client.onrender.com,https://skill-setu-client.onrender.com,https://skill-setu-full-stack.vercel.app,https://skill-setu-full-stack-c2go.vercel.app,https://skill-setu-full-stack-onfe-3ilotf4ml-shashankjais-projects.vercel.app";
+  "http://localhost:5173,http://localhost:4173,http://127.0.0.1:5173,http://127.0.0.1:4173,https://skillsetu-client.onrender.com,https://skill-setu-client.onrender.com,https://skill-setu-full-stack.vercel.app,https://skill-setu-full-stack-c2go.vercel.app,https://skill-setu-full-stack-onfe-3ilotf4ml-shashankjais-projects.vercel.app";
 const allowedOrigins = FRONTEND_URLS.split(",").map((s) => s.trim());
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  const normalized = origin.trim();
+
+  if (allowedOrigins.includes("*") || allowedOrigins.includes(normalized)) {
+    return true;
+  }
+
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(normalized)) {
+    return true;
+  }
+
+  if (
+    normalized.endsWith(".vercel.app") &&
+    (normalized.includes("skill-setu-full-stack") ||
+      normalized.includes("skill-setu-full-stack-onfe"))
+  ) {
+    return true;
+  }
+
+  return false;
+};
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // allow requests with no origin (e.g., curl, native apps)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    // Allow related Vercel preview domains for this project name.
-    if (
-      origin.endsWith(".vercel.app") &&
-      (origin.includes("skill-setu-full-stack") ||
-        origin.includes("skill-setu-full-stack-onfe"))
-    ) {
+    if (isAllowedOrigin(origin)) {
       return callback(null, true);
     }
     return callback(new Error("CORS policy: Origin not allowed"), false);
@@ -64,15 +78,7 @@ const corsOptions = {
 const io = socketIo(server, {
   cors: {
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      if (
-        origin.endsWith(".vercel.app") &&
-        (origin.includes("skill-setu-full-stack") ||
-          origin.includes("skill-setu-full-stack-onfe"))
-      ) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
       }
       return callback(new Error("CORS policy: Origin not allowed"), false);
@@ -189,6 +195,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/video-call", videoCallRoutes);
 app.use("/api/admin", adminRoutes); // ← Mount Admin Dashboard routes
 app.use("/api/reports", reportRoutes); // ← Mount Admin Dashboard routes
 
@@ -197,7 +204,59 @@ sessionSocket.on("connection", (socket) => {
   console.log("A user connected to session socket");
 
   const sessionId = socket.handshake.query.sessionId;
-  console.log("Received sessionId:", sessionId); // Log sessionId here
+  console.log("Received sessionId:", sessionId);
+
+  if (sessionId) {
+    socket.join(sessionId);
+  }
+
+  socket.on("join-call", async ({ sessionId: roomId, userId }) => {
+    if (!roomId) return;
+    socket.join(roomId);
+
+    const members = await sessionSocket.in(roomId).fetchSockets();
+    const peerIds = members
+      .filter((memberSocket) => memberSocket.id !== socket.id)
+      .map((memberSocket) => memberSocket.id);
+
+    if (peerIds.length > 0) {
+      socket.emit("peer-joined", { userId, peerSocketId: peerIds[0] });
+      socket
+        .to(roomId)
+        .emit("peer-joined", { userId, peerSocketId: socket.id });
+    }
+  });
+
+  socket.on("offer", ({ sessionId: roomId, senderId, receiverId, offer }) => {
+    if (!roomId || !offer) return;
+    socket.to(roomId).emit("offer", { offer, senderId, receiverId });
+  });
+
+  socket.on("answer", ({ sessionId: roomId, senderId, receiverId, answer }) => {
+    if (!roomId || !answer) return;
+    socket.to(roomId).emit("answer", { answer, senderId, receiverId });
+  });
+
+  socket.on("ice-candidate", ({ sessionId: roomId, senderId, candidate }) => {
+    if (!roomId || !candidate) return;
+    socket.to(roomId).emit("ice-candidate", { candidate, senderId });
+  });
+
+  socket.on("leave-call", ({ sessionId: roomId, userId }) => {
+    if (!roomId) return;
+    socket.leave(roomId);
+    sessionSocket.to(roomId).emit("leave-call", { userId });
+  });
+
+  socket.on("toggle-mute", ({ sessionId: roomId, userId, isMuted }) => {
+    if (!roomId) return;
+    socket.to(roomId).emit("toggle-mute", { userId, isMuted });
+  });
+
+  socket.on("toggle-video", ({ sessionId: roomId, userId, isVideoOff }) => {
+    if (!roomId) return;
+    socket.to(roomId).emit("toggle-video", { userId, isVideoOff });
+  });
 
   socket.on("disconnect", () => {
     console.log("A user disconnected from session socket");

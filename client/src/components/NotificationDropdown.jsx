@@ -6,10 +6,9 @@ import axios from "axios"; // Import axios here
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 
-const NotificationDropdown = () => {
+const NotificationDropdown = ({ onClose }) => {
   const dispatch = useDispatch();
   const { notifications } = useSelector((state) => state.notifications);
-  const [isOpen, setIsOpen] = useState(false); // State to toggle the dropdown visibility
   const [filter, setFilter] = useState("all"); // Default filter is 'all'
 
   const handleMarkAsRead = (id) => {
@@ -73,53 +72,56 @@ const NotificationDropdown = () => {
   // Close the dropdown when clicked outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (event.target.closest(".notification-dropdown") === null) {
-        setIsOpen(false);
+      if (
+        event.target.closest(".notification-dropdown") === null &&
+        event.target.closest(".notification-bell-container") === null
+      ) {
+        onClose();
       }
     };
 
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
+  }, [onClose]);
 
   return (
-    <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-lg shadow-md notification-dropdown">
+    <div className="notification-dropdown absolute right-0 top-full z-[110] mt-3 max-h-64 w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/10 bg-slate-900/95 text-white shadow-2xl shadow-slate-950/50 backdrop-blur-xl">
       {/* Filter Buttons */}
-      <div className="flex justify-between p-2 border-b border-gray-200">
+      <div className="flex items-center justify-between gap-2 border-b border-white/10 p-2.5">
         <button
           onClick={() => toggleFilter("unread")}
-          className={`text-sm ${filter === "unread" ? "font-bold text-blue-700" : "text-blue-500"} hover:text-blue-700`}
+          className={`!w-auto !p-0 text-xs transition ${filter === "unread" ? "font-bold text-blue-300" : "text-slate-400"} hover:text-blue-200`}
         >
           Unread
         </button>
         <button
           onClick={() => toggleFilter("read")}
-          className={`text-sm ${filter === "read" ? "font-bold text-blue-700" : "text-blue-500"} hover:text-blue-700`}
+          className={`!w-auto !p-0 text-xs transition ${filter === "read" ? "font-bold text-blue-300" : "text-slate-400"} hover:text-blue-200`}
         >
           Read
         </button>
         <button
           onClick={handleMarkAllAsRead}
-          className="text-sm text-blue-500 hover:text-blue-700"
+          className="!w-auto !p-0 text-xs text-blue-300 transition hover:text-blue-200"
         >
           Mark All as Read
         </button>
       </div>
 
       {/* Notifications List */}
-      <ul className="max-h-60 overflow-y-auto">
+      <ul className="max-h-44 overflow-y-auto">
         {filteredNotifications.length > 0 ? (
           filteredNotifications.map((notification) => (
             <li
               key={notification._id}
-              className={`p-2 ${!notification.isRead ? "bg-gray-100" : ""}`}
+              className={`cursor-pointer border-b border-white/5 p-3 text-sm transition hover:bg-white/10 ${!notification.isRead ? "bg-blue-600/20 text-white" : "text-slate-300"}`}
               onClick={() => handleMarkAsRead(notification._id)} // Mark as read on click
             >
               {notification.message}
             </li>
           ))
         ) : (
-          <li className="p-2">No notifications</li>
+          <li className="p-4 text-sm text-slate-400">No notifications</li>
         )}
       </ul>
     </div>

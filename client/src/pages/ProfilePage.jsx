@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Navbar from "../components/navbar/Navbar";
 import NotificationBell from "../components/NotificationBell";
-import ProfileCard from "../components/ProfileCard"; // Import ProfileCard
 import { FaLinkedin, FaGithub, FaTwitter, FaInstagram } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { FiEdit, FiCalendar, FiClock } from "react-icons/fi";
@@ -174,25 +173,29 @@ const ProfilePage = () => {
 
   // Show loading state until the profile is available
   if (!user) {
-    return <div>Loading...</div>; // Or use a spinner/loading indicator
+    return (
+      <div className="min-h-screen bg-slate-950 p-8 text-slate-300">
+        Loading...
+      </div>
+    ); // Or use a spinner/loading indicator
   }
 
   return (
-    <div className="min-h-screen relative">
+    <div className="relative min-h-screen bg-slate-950 text-white">
       <Background />
       <div className="relative z-10">
         <Navbar />
         {/* Profile and Notification Section */}
-        <div className="px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-start max-w-7xl mx-auto p-4 md:p-8 space-y-6 md:space-y-0">
+        <div className="px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto flex max-w-7xl flex-col items-start justify-between space-y-6 p-4 md:flex-row md:space-y-0 md:p-8">
             {/* Left Profile Card */}
-            <div className="relative bg-gradient-to-br from-blue-400 via-blue-300 to-blue-200 rounded-xl shadow-lg p-4 md:p-6 min-h-[10rem] md:min-h-[12rem] flex flex-col md:flex-row items-center space-x-0 md:space-x-6 w-full h-auto md:h-60 transition hover:shadow-2xl md:mr-4 transition-shadow duration-300 self-start">
+            <div className="relative flex min-h-[10rem] w-full flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_20px_40px_rgba(15,23,42,0.3)] backdrop-blur-xl transition duration-300 hover:border-blue-400/30 hover:shadow-2xl md:mr-4 md:h-60 md:min-h-[12rem] md:flex-row md:space-x-6 md:p-6">
               {/* Controls: Notifications + Edit */}
-              <div className="absolute top-4 right-4 flex items-center space-x-2">
+              <div className="absolute right-4 top-4 z-[120] flex items-center space-x-2">
                 <NotificationBell />
                 <button
                   onClick={() => navigate("/profile-settings")}
-                  className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-blue-400/30 bg-blue-600 text-white transition hover:bg-blue-500 md:h-14 md:w-14"
                   title="Edit Profile"
                 >
                   <FiEdit size={20} className="md:w-6 md:h-6" />
@@ -200,7 +203,7 @@ const ProfilePage = () => {
               </div>
 
               {/* Profile Picture */}
-              <div className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden border-4 border-white shadow-md">
+              <div className="h-20 w-20 overflow-hidden rounded-full border-4 border-blue-400/60 shadow-lg shadow-blue-950/40 md:h-28 md:w-28">
                 <img
                   src={
                     user?.profilePicture
@@ -217,13 +220,13 @@ const ProfilePage = () => {
                 <h2 className="text-2xl md:text-3xl font-bold text-white">
                   {user?.name || "User"}
                 </h2>
-                <p className="text-base md:text-lg text-white">
+                <p className="text-base text-slate-200 md:text-lg">
                   Welcome to your profile!
                 </p>
 
                 {user?.status && (
-                  <p className="text-xs md:text-sm text-white">
-                    <span className="font-semibold text-white">Status:</span>{" "}
+                  <p className="text-xs text-slate-300 md:text-sm">
+                    <span className="font-semibold text-blue-200">Status:</span>{" "}
                     {user.status}
                   </p>
                 )}
@@ -236,7 +239,7 @@ const ProfilePage = () => {
                         href={user.socials.linkedin}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-blue-600 hover:text-blue-500 transition"
+                        className="text-blue-300 transition hover:text-blue-200"
                       >
                         <FaLinkedin size={20} className="md:w-6 md:h-6" />
                       </a>
@@ -246,7 +249,7 @@ const ProfilePage = () => {
                         href={user.socials.facebook}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-blue-700 hover:text-blue-700 transition"
+                        className="text-blue-300 transition hover:text-blue-200"
                       >
                         <i className="fab fa-facebook text-lg md:text-xl"></i>
                       </a>
@@ -256,7 +259,7 @@ const ProfilePage = () => {
                         href={user.socials.twitter}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-pink-500 hover:text-blue-400 transition"
+                        className="text-slate-300 transition hover:text-pink-300"
                       >
                         <FaInstagram size={20} className="md:w-6 md:h-6" />
                       </a>
@@ -283,10 +286,10 @@ const ProfilePage = () => {
                       textSize: "32px",
                       textColor: "#fff",
                       pathColor: "#4caf50",
-                      trailColor: "#d6d6d6",
+                      trailColor: "rgba(148, 163, 184, 0.22)",
                     })}
                   />
-                  <p className="text-center text-white text-xs md:text-sm mt-1">
+                  <p className="mt-1 text-center text-xs text-slate-300 md:text-sm">
                     Completed
                   </p>
                 </div>
@@ -307,10 +310,10 @@ const ProfilePage = () => {
                       textSize: "32px",
                       textColor: "#fff",
                       pathColor: "#ff9800",
-                      trailColor: "#d6d6d6",
+                      trailColor: "rgba(148, 163, 184, 0.22)",
                     })}
                   />
-                  <p className="text-center text-white text-xs md:text-sm mt-1">
+                  <p className="mt-1 text-center text-xs text-slate-300 md:text-sm">
                     Pending
                   </p>
                 </div>
@@ -331,10 +334,10 @@ const ProfilePage = () => {
                       textSize: "32px",
                       textColor: "#fff",
                       pathColor: "#2196f3",
-                      trailColor: "#d6d6d6",
+                      trailColor: "rgba(148, 163, 184, 0.22)",
                     })}
                   />
-                  <p className="text-center text-white text-xs md:text-sm mt-1">
+                  <p className="mt-1 text-center text-xs text-slate-300 md:text-sm">
                     Upcoming
                   </p>
                 </div>
@@ -355,10 +358,10 @@ const ProfilePage = () => {
                       textSize: "32px",
                       textColor: "#fff",
                       pathColor: "#f44336",
-                      trailColor: "#d6d6d6",
+                      trailColor: "rgba(148, 163, 184, 0.22)",
                     })}
                   />
-                  <p className="text-center text-white text-xs md:text-sm mt-1">
+                  <p className="mt-1 text-center text-xs text-slate-300 md:text-sm">
                     Canceled
                   </p>
                 </div>
@@ -367,35 +370,35 @@ const ProfilePage = () => {
           </div>
 
           {/* Profile Info and Skills Info */}
-          <div className="max-w-7xl mx-auto p-4 md:p-8">
+          <div className="mx-auto max-w-7xl p-4 md:p-8">
             {success && (
-              <div className="bg-green-500 text-white p-2 rounded mb-4">
+              <div className="mb-4 rounded-lg border border-emerald-400/30 bg-emerald-600/20 p-3 text-emerald-200">
                 {success}
               </div>
             )}
             {error && (
-              <div className="bg-red-500 text-white p-2 rounded mb-4">
+              <div className="mb-4 rounded-lg border border-rose-400/30 bg-rose-600/20 p-3 text-rose-200">
                 {error}
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
               {/* Skills Card */}
-              <div className="bg-gradient-to-br from-blue-400 via-blue-300 to-blue-200 rounded-lg shadow-lg p-4 md:p-6 h-80 md:h-96 overflow-y-auto hover:shadow-2xl transition-shadow duration-300">
-                <div className="flex justify-between items-center mb-4 md:mb-6">
-                  <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 text-left">
+              <div className="h-80 overflow-y-auto rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_20px_40px_rgba(15,23,42,0.25)] backdrop-blur-md transition duration-300 hover:border-blue-400/30 hover:shadow-2xl md:h-96 md:p-6">
+                <div className="mb-4 flex items-center justify-between md:mb-6">
+                  <h2 className="text-left text-2xl font-semibold text-white md:text-3xl">
                     Your Skills
                   </h2>
                   <div
                     onClick={openModal}
-                    className="bg-blue-600 text-white p-2 md:p-3 rounded-full cursor-pointer hover:bg-blue-700 transition"
+                    className="cursor-pointer rounded-full bg-blue-600 p-2 text-white transition hover:bg-blue-500 md:p-3"
                   >
                     <FiEdit size={20} className="md:w-6 md:h-6" />
                   </div>
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-xl md:text-2xl font-medium text-gray-700 mb-2 text-left">
+                  <p className="mb-2 text-left text-xl font-medium text-blue-200 md:text-2xl">
                     Skills You Can Teach:
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -407,20 +410,20 @@ const ProfilePage = () => {
                         .map((s, i) => (
                           <span
                             key={i}
-                            className="bg-blue-200 text-blue-800 text-sm md:text-lg font-medium rounded-full px-3 py-1 md:px-5 md:py-2 hover:bg-blue-300 transition"
+                            className="rounded-full bg-blue-600/20 px-3 py-1 text-sm font-medium text-blue-300 transition hover:bg-blue-600/30 md:px-5 md:py-2 md:text-lg"
                           >
                             {s}
                           </span>
                         ))
                     ) : (
-                      <span className="text-gray-500 text-sm md:text-lg">
+                      <span className="text-sm text-slate-400 md:text-lg">
                         None
                       </span>
                     )}
                   </div>
                 </div>
                 <div>
-                  <p className="text-xl md:text-2xl font-medium text-gray-700 mb-2 text-left">
+                  <p className="mb-2 text-left text-xl font-medium text-blue-200 md:text-2xl">
                     Skills You Want to Learn:
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -432,13 +435,13 @@ const ProfilePage = () => {
                         .map((s, i) => (
                           <span
                             key={i}
-                            className="bg-green-200 text-green-800 text-sm md:text-lg font-medium rounded-full px-3 py-1 md:px-5 md:py-2 hover:bg-green-300 transition"
+                            className="rounded-full bg-emerald-600/20 px-3 py-1 text-sm font-medium text-emerald-300 transition hover:bg-emerald-600/30 md:px-5 md:py-2 md:text-lg"
                           >
                             {s}
                           </span>
                         ))
                     ) : (
-                      <span className="text-gray-500 text-sm md:text-lg">
+                      <span className="text-sm text-slate-400 md:text-lg">
                         None
                       </span>
                     )}
@@ -447,8 +450,8 @@ const ProfilePage = () => {
               </div>
 
               {/* Sessions Card */}
-              <div className="bg-gradient-to-br from-blue-400 via-blue-300 to-blue-200 rounded-lg shadow-lg p-4 md:p-6 h-80 md:h-96 flex flex-col hover:shadow-2xl transition-shadow duration-300">
-                <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-4 md:mb-6 text-left">
+              <div className="flex h-80 flex-col rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_20px_40px_rgba(15,23,42,0.25)] backdrop-blur-md transition duration-300 hover:border-blue-400/30 hover:shadow-2xl md:h-96 md:p-6">
+                <h2 className="mb-4 text-left text-2xl font-semibold text-white md:mb-6 md:text-3xl">
                   Your Sessions
                 </h2>
 
@@ -458,7 +461,7 @@ const ProfilePage = () => {
                     className={`px-3 py-1 md:px-4 md:py-2 rounded-lg font-medium text-sm md:text-base transition ${
                       activeTab === "pending"
                         ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        : "bg-white/5 text-slate-300 hover:bg-white/10"
                     }`}
                   >
                     Pending
@@ -468,7 +471,7 @@ const ProfilePage = () => {
                     className={`px-3 py-1 md:px-4 md:py-2 rounded-lg font-medium text-sm md:text-base transition ${
                       activeTab === "upcoming"
                         ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        : "bg-white/5 text-slate-300 hover:bg-white/10"
                     }`}
                   >
                     Upcoming
@@ -478,7 +481,7 @@ const ProfilePage = () => {
                     className={`px-3 py-1 md:px-4 md:py-2 rounded-lg font-medium text-sm md:text-base transition ${
                       activeTab === "completed"
                         ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        : "bg-white/5 text-slate-300 hover:bg-white/10"
                     }`}
                   >
                     Completed
@@ -488,7 +491,7 @@ const ProfilePage = () => {
                     className={`px-3 py-1 md:px-4 md:py-2 rounded-lg font-medium text-sm md:text-base transition ${
                       activeTab === "canceled"
                         ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        : "bg-white/5 text-slate-300 hover:bg-white/10"
                     }`}
                   >
                     Canceled
@@ -515,11 +518,11 @@ const ProfilePage = () => {
                     ).map((s) => (
                       <div
                         key={s._id}
-                        className="bg-white ring-1 ring-gray-100 rounded-lg shadow p-3 md:p-4 hover:shadow-md hover:-translate-y-0.5 transition"
+                        className="rounded-xl border border-white/10 bg-slate-900/80 p-3 shadow-lg transition hover:-translate-y-0.5 hover:border-blue-400/30 md:p-4"
                       >
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2 gap-2">
                           <div className="flex items-center space-x-2">
-                            <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs md:text-sm font-semibold">
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600/20 text-xs font-semibold text-blue-300 md:h-8 md:w-8 md:text-sm">
                               {s.userId1?.name
                                 ? s.userId1.name
                                     .split(" ")
@@ -528,19 +531,19 @@ const ProfilePage = () => {
                                     .toUpperCase()
                                 : "U"}
                             </div>
-                            <span className="text-sm md:text-base font-semibold text-gray-800">
+                            <span className="text-sm font-semibold text-white md:text-base">
                               {getSessionPartnerName(s, user._id)}
                             </span>
                           </div>
-                          <p className="text-xs md:text-sm text-gray-600">
+                          <p className="text-xs text-blue-300 md:text-sm">
                             {s.skill}
                           </p>
-                          <span className="text-xs md:text-sm text-gray-500">
+                          <span className="text-xs text-slate-400 md:text-sm">
                             {formatDate(s.sessionDate)}
                           </span>
                         </div>
 
-                        <div className="flex flex-col md:flex-row md:items-center md:space-x-4 text-gray-600 mb-3 text-xs md:text-sm gap-2">
+                        <div className="mb-3 flex flex-col gap-2 text-xs text-slate-400 md:flex-row md:items-center md:space-x-4 md:text-sm">
                           <div className="flex items-center space-x-1">
                             <FiCalendar size={12} className="md:w-4 md:h-4" />
                             <span>{formatDate(s.sessionDate)}</span>
@@ -572,7 +575,7 @@ const ProfilePage = () => {
                       </div>
                     ))
                   ) : (
-                    <p className="text-gray-500 text-center text-sm md:text-base">
+                    <p className="text-center text-sm text-slate-400 md:text-base">
                       {activeTab === "pending"
                         ? "No pending sessions."
                         : activeTab === "upcoming"
@@ -592,47 +595,47 @@ const ProfilePage = () => {
         <AnimatePresence>
           {isModalOpen && (
             <motion.div
-              className="fixed inset-0 bg-black/20 flex items-center justify-center z-50"
+              className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
               <motion.div
-                className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4 md:max-w-lg"
+                className="mx-4 w-full max-w-md rounded-2xl border border-white/10 bg-slate-900 p-6 text-white shadow-2xl md:max-w-lg"
                 initial={{ y: "100vh", opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: "100vh", opacity: 0 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               >
-                <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 text-left">
+                <h2 className="mb-6 text-left text-xl font-semibold text-white md:text-2xl">
                   Update Your Skills
                 </h2>
 
-                {error && <p className="text-red-500 mb-4">{error}</p>}
-                {success && <p className="text-green-500 mb-4">{success}</p>}
+                {error && <p className="mb-4 text-rose-300">{error}</p>}
+                {success && <p className="mb-4 text-emerald-300">{success}</p>}
 
                 <div className="mb-4">
-                  <label className="block text-gray-700 mb-2 text-left">
+                  <label className="mb-2 block text-left text-slate-300">
                     Skills You Can Teach
                   </label>
                   <input
                     type="text"
                     value={modalTeach}
                     onChange={(e) => setModalTeach(e.target.value)}
-                    className="w-full border rounded-lg p-2 md:p-3 text-sm md:text-base"
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800 p-2 text-sm text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 md:p-3 md:text-base"
                     placeholder="e.g. JavaScript, Python"
                   />
                 </div>
                 <div className="mb-6">
-                  <label className="block text-gray-700 mb-2 text-left">
+                  <label className="mb-2 block text-left text-slate-300">
                     Skills You Want to Learn
                   </label>
                   <input
                     type="text"
                     value={modalLearn}
                     onChange={(e) => setModalLearn(e.target.value)}
-                    className="w-full border rounded-lg p-2 md:p-3 text-sm md:text-base"
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800 p-2 text-sm text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 md:p-3 md:text-base"
                     placeholder="e.g. React, Data Science"
                   />
                 </div>
@@ -640,13 +643,13 @@ const ProfilePage = () => {
                 <div className="flex justify-end space-x-3 md:space-x-4">
                   <button
                     onClick={closeModal}
-                    className="px-3 py-1 md:px-4 md:py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition text-sm md:text-base"
+                    className="rounded-lg bg-white/10 px-3 py-1 text-sm text-slate-200 transition hover:bg-white/20 md:px-4 md:py-2 md:text-base"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleUpdateProfile}
-                    className="px-3 py-1 md:px-4 md:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm md:text-base"
+                    className="rounded-lg bg-blue-600 px-3 py-1 text-sm text-white transition hover:bg-blue-500 md:px-4 md:py-2 md:text-base"
                   >
                     Save
                   </button>

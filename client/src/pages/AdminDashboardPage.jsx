@@ -26,7 +26,7 @@ const AdminDashboardPage = () => {
     : "https://placehold.co/150x150?text=Admin";
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-950 text-white">
       <AdminNavbar
         adminName={user?.name || "Admin"}
         profileImage={profileImage}
@@ -36,96 +36,71 @@ const AdminDashboardPage = () => {
       <div className="flex pt-16 transition-all duration-300">
         {sidebarOpen && <AdminSideBar />}
 
-        <main
-          className={`flex-1 p-6 overflow-y-auto max-h-[calc(100vh-4rem)] transition-all duration-300 ${
-            sidebarOpen ? "ml-0 md:ml-0" : ""
-          }`}
-        >
-          {/* Profile Card */}
-          <div className="flex flex-col md:flex-row items-start bg-blue-900 rounded-lg shadow-md p-6 mb-6 animate-fade-in">
-            <div className="relative group flex-shrink-0">
-              <img
-                src={profileImage}
-                alt="Profile"
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src =
-                    "https://placehold.co/150x150?text=Admin";
-                }}
-                className="w-24 h-24 rounded-full border-4 border-white object-cover transform transition-transform duration-300 group-hover:scale-110"
-              />
-            </div>
-            <div className="md:ml-6 mt-4 md:mt-0 text-left">
-              <h2 className="text-2xl font-bold text-white">
-                {user?.name || "Admin User"}
-              </h2>
-              <p className="text-white mt-2 leading-relaxed">
-                Responsible for overseeing platform operations and ensuring user
-                compliance. <br />
-                Manages user data, handles reports, and maintains system
-                integrity. <br />
-                Monitors analytics to drive informed decisions and improvements.{" "}
-                <br />
-                Acts as the primary point of control for administrative tasks
-                and updates.
-              </p>
+        <main className="flex-1 overflow-y-auto p-6 max-h-[calc(100vh-4rem)] transition-all duration-300">
+          <div className="mb-6 overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-r from-blue-700/30 via-sky-600/20 to-indigo-700/30 p-6 shadow-[0_22px_50px_rgba(37,99,235,0.2)] backdrop-blur-xl">
+            <div className="flex flex-col items-start gap-6 md:flex-row md:items-center">
+              <div className="relative group flex-shrink-0">
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src =
+                      "https://placehold.co/150x150?text=Admin";
+                  }}
+                  className="h-24 w-24 rounded-full border-4 border-white/60 object-cover shadow-2xl transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+              <div className="text-left">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">
+                  Admin panel
+                </p>
+                <h2 className="mt-2 text-3xl font-black text-white">
+                  {user?.name || "Admin User"}
+                </h2>
+                <p className="mt-3 max-w-3xl text-sm text-slate-200 md:text-base">
+                  Responsible for overseeing platform operations, handling
+                  reports, maintaining integrity, and guiding the growth of the
+                  SkillSetu community.
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Four Boxes */}
-          {/* Four Boxes */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
             {[
               {
-                title: "USERS",
-                text: "View and manage all registered users. Control access, update profiles, and monitor user activities.",
+                title: "Users",
+                text: "View and manage all registered users, monitor access, and keep account controls in check.",
               },
               {
-                title: "REPORTS",
-                text: "Analyze reported issues, take action on complaints, and maintain platform integrity.",
+                title: "Reports",
+                text: "Review reported issues, assess patterns, and resolve platform concerns quickly.",
               },
               {
-                title: "ANALYTICS",
-                text: "Monitor usage stats, trends, and system performance for better decision-making.",
+                title: "Analytics",
+                text: "Track engagement, adoption, and performance metrics to guide product decisions.",
               },
               {
-                title: "PROFILE",
-                text: "Update your profile, change settings, and manage your administrator account.",
+                title: "Profile",
+                text: "Update your admin visibility, account details, and platform-level controls.",
               },
             ].map(({ title, text }) => (
               <div
                 key={title}
-                className="bg-blue-900 text-white rounded-lg shadow p-4 border border-white transform transition-transform duration-300 hover:scale-105"
+                className="rounded-[24px] border border-white/10 bg-white/5 p-5 shadow-[0_20px_40px_rgba(15,23,42,0.25)] backdrop-blur-sm transition-transform duration-300 hover:-translate-y-1"
               >
-                <h3 className="font-bold text-lg mb-2">{title}</h3>
-                <p>{text}</p>
+                <h3 className="mb-2 text-lg font-bold text-white">{title}</h3>
+                <p className="text-sm leading-6 text-slate-300">{text}</p>
               </div>
             ))}
           </div>
 
-          {/* Nested Routes */}
           <div className="mt-8">
             <Outlet />
           </div>
         </main>
       </div>
-
-      {/* Animation keyframe */}
-      <style>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.6s ease-out;
-        }
-      `}</style>
     </div>
   );
 };

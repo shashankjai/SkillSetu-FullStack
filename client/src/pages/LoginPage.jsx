@@ -8,11 +8,11 @@ import {
 import axios from "axios";
 import loginImage from "../assets/auth-bg.jpg";
 import { useNavigate, Link } from "react-router-dom";
-
-const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
-import { FiMail, FiLock } from "react-icons/fi";
+import { FiMail, FiLock, FiArrowRight } from "react-icons/fi";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { motion } from "framer-motion";
+
+const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -27,7 +27,6 @@ const LoginPage = () => {
     e.preventDefault();
     setError("");
 
-    // Field validation
     if (!email.trim()) {
       setError("Please enter your email address.");
       return;
@@ -43,7 +42,6 @@ const LoginPage = () => {
       return;
     }
 
-    // API call
     dispatch(loginStart());
 
     try {
@@ -53,37 +51,25 @@ const LoginPage = () => {
       });
 
       const token = response.data.token;
-
-      // Safely decode token
       let decoded;
 
       try {
-        // Dynamically import jwt-decode if needed, or use a safer approach
         const { jwtDecode } = await import("jwt-decode");
         decoded = jwtDecode(token);
       } catch (decodeError) {
         console.error("Token decode error:", decodeError);
 
-        // Fallback: try to parse manually if possible
         try {
           const base64Url = token.split(".")[1];
-
-          const base64 = base64Url
-            .replace(/-/g, "+")
-            .replace(/_/g, "/");
-
+          const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
           const jsonPayload = decodeURIComponent(
             atob(base64)
               .split("")
               .map(function (c) {
-                return (
-                  "%" +
-                  ("00" + c.charCodeAt(0).toString(16)).slice(-2)
-                );
+                return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
               })
-              .join("")
+              .join(""),
           );
-
           decoded = JSON.parse(jsonPayload);
         } catch (manualError) {
           throw new Error("Invalid token format");
@@ -91,195 +77,158 @@ const LoginPage = () => {
       }
 
       const role = decoded?.user?.role || "user";
-
-      /*
-       * Create the same user object that will be stored
-       * in localStorage and Redux.
-       */
       const user = {
         name: response.data.name || decoded?.user?.name || "",
-        email:
-          response.data.email ||
-          decoded?.user?.email ||
-          email,
-        _id:
-          response.data.id ||
-          decoded?.user?.id ||
-          "",
-        role: role,
+        email: response.data.email || decoded?.user?.email || email,
+        _id: response.data.id || decoded?.user?.id || "",
+        role,
       };
 
       localStorage.setItem("token", token);
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(user)
-      );
-
-      /*
-       * FIX:
-       *
-       * Previously:
-       * dispatch(loginSuccess(token));
-       *
-       * This was storing the JWT token inside
-       * Redux auth.user.
-       *
-       * Now we store the actual user object.
-       */
+      localStorage.setItem("user", JSON.stringify(user));
       dispatch(loginSuccess(user));
 
-      // Redirect based on role
-      if (role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/profile");
-      }
+      navigate(role === "admin" ? "/admin" : "/profile");
     } catch (err) {
       console.error("Login error:", err);
-
       const errorMessage =
-        err.response?.data?.msg ||
-        err.message ||
-        "Something went wrong!";
-
+        err.response?.data?.msg || err.message || "Something went wrong!";
       dispatch(loginFailure(errorMessage));
       setError(errorMessage);
     }
   };
 
   return (
-    <div className="flex fixed inset-0 overflow-hidden">
-      {/* Left: Login Form */}
+    <div className="flex min-h-screen w-full overflow-hidden bg-slate-950">
       <motion.div
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        transition={{ duration: 1, ease: "easeOut" }}
-        className="w-1/2 h-full flex flex-col justify-center items-center bg-gradient-to-br from-gray-100 via-blue-100 to-blue-200 relative z-10"
+        initial={{ opacity: 0, x: -30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="relative flex w-full flex-col items-center justify-center bg-slate-950/90 px-4 py-10 sm:px-6 lg:w-1/2"
       >
-        {/* Animated Website Title */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.2),transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(96,165,250,0.18),transparent_35%)]" />
+
         <motion.div
-          initial={{ y: -100, opacity: 0 }}
+          initial={{ y: -30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="absolute top-6 text-center"
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="relative z-10 mb-8 text-center"
         >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">
+          <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">
+            Skill exchange platform
+          </span>
+          <h1 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
             SkillSetu
           </h1>
-
-          <p className="text-sm sm:text-base md:text-lg text-gray-600 italic mt-1">
+          <p className="mt-3 text-base text-slate-300">
             Empower your skills. Connect. Grow.
           </p>
         </motion.div>
 
-        {/* Login Box */}
-        <div className="mt-12 bg-gradient-to-br from-blue-400 via-blue-500 to-indigo-600 rounded-3xl shadow-2xl p-6 sm:p-8 md:p-10 w-[90%] max-w-md">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-4 sm:mb-6">
-            Welcome Back
-          </h2>
-
-          {/* Error Message */}
-          {error && (
-            <p className="text-red-500 font-semibold text-center mb-3 bg-white/90 rounded-lg py-2 px-3">
-              {error}
+        <div className="relative z-10 w-full max-w-md rounded-[28px] border border-white/10 bg-white/5 p-5 shadow-[0_25px_80px_rgba(15,23,42,0.5)] backdrop-blur-xl sm:p-8">
+          <div className="mb-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-200">
+              Welcome back
             </p>
+            <h2 className="mt-3 text-3xl font-bold text-white">Sign in</h2>
+          </div>
+
+          {error && (
+            <div className="mb-4 rounded-2xl border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-100">
+              {error}
+            </div>
           )}
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-4 sm:space-y-6"
-          >
-            {/* Email Field */}
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="relative">
-              <FiMail className="absolute top-1/2 left-3 transform -translate-y-1/2 text-blue-500" />
-
+              <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-200" />
               <input
                 type="email"
-                placeholder="Enter Email"
+                placeholder="Email address"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-
                   if (
-                    error ===
-                      "Please enter your email address." ||
-                    error ===
-                      "Please enter a valid email address."
-                  ) {
+                    error === "Please enter your email address." ||
+                    error === "Please enter a valid email address."
+                  )
                     setError("");
-                  }
                 }}
-                className="pl-10 pr-4 py-2 sm:py-3 w-full rounded-full border border-gray-300 outline-none text-sm sm:text-base md:text-lg text-gray-900 bg-gray-100 placeholder-gray-500 focus:bg-white focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-2xl border border-white/10 bg-slate-900/80 py-3.5 pl-12 pr-4 text-base text-white placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
               />
             </div>
 
-            {/* Password Field */}
             <div className="relative">
-              <FiLock className="absolute top-1/2 left-3 transform -translate-y-1/2 text-blue-500" />
-
+              <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-200" />
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Enter Password"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-
-                  if (error === "Password is required.") {
-                    setError("");
-                  }
+                  if (error === "Password is required.") setError("");
                 }}
-                className="pl-10 pr-10 py-2 sm:py-3 w-full rounded-full border border-gray-300 outline-none text-sm sm:text-base md:text-lg text-gray-900 bg-gray-100 placeholder-gray-500 focus:bg-white focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-2xl border border-white/10 bg-slate-900/80 py-3.5 pl-12 pr-12 text-base text-white placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
               />
-
-              <div
-                className="absolute top-1/2 right-3 transform -translate-y-1/2 text-blue-500 cursor-pointer"
-                onClick={() =>
-                  setShowPassword(!showPassword)
-                }
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-200 transition hover:text-white"
               >
                 {showPassword ? (
-                  <AiOutlineEyeInvisible />
+                  <AiOutlineEyeInvisible size={18} />
                 ) : (
-                  <AiOutlineEye />
+                  <AiOutlineEye size={18} />
                 )}
-              </div>
+              </button>
             </div>
 
-            {/* Login Button */}
-            <button
-              type="submit"
-              className="w-2/3 mx-auto block bg-blue-500 text-white font-semibold py-2 sm:py-3 rounded-full border border-blue-700 hover:bg-blue-600 hover:text-gray-100 transition duration-300 text-sm sm:text-base md:text-lg"
-            >
-              Login
+            <button type="submit" className="primary-btn w-full text-base">
+              Sign in <FiArrowRight />
             </button>
           </form>
 
-          {/* Register Link */}
-          <div className="text-center mt-4">
-            <p className="text-sm sm:text-base md:text-lg text-white">
-              Don't have an account?{" "}
-              <Link
-                to="/register"
-                className="underline hover:text-gray-200"
-              >
-                Register here
-              </Link>
-            </p>
+          <div className="mt-6 text-center text-sm text-slate-300">
+            New to SkillSetu?{" "}
+            <Link
+              to="/register"
+              className="font-semibold text-blue-300 transition hover:text-white"
+            >
+              Create account
+            </Link>
           </div>
         </div>
       </motion.div>
 
-      {/* Right: Background Image Animation */}
       <motion.div
-        initial={{ x: "100%" }}
-        animate={{ x: 0 }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
-        className="w-1/2 h-full bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${loginImage})`,
-        }}
-      ></motion.div>
+        initial={{ opacity: 0, x: 30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="hidden h-screen w-1/2 overflow-hidden bg-slate-900 lg:block"
+      >
+        <div className="relative h-full w-full">
+          <img
+            src={loginImage}
+            alt="SkillSetu team"
+            className="h-full w-full object-cover opacity-80"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/30 to-blue-900/40" />
+          <div className="absolute inset-0 flex items-end p-10">
+            <div className="max-w-md rounded-[26px] border border-white/10 bg-slate-950/35 p-6 backdrop-blur-md">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-200">
+                Why SkillSetu
+              </p>
+              <h3 className="mt-3 text-3xl font-bold text-white">
+                Learn with people, not just courses.
+              </h3>
+              <p className="mt-3 text-sm text-slate-200">
+                Book sessions, swap skills, and build a stronger learning
+                network with trusted peers.
+              </p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 };

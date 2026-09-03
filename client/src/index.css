@@ -1,10 +1,45 @@
 @import "tailwindcss";
 
+:root {
+  --brand-900: #07111f;
+  --brand-800: #0f172a;
+  --brand-700: #12253f;
+  --brand-600: #1d4ed8;
+  --brand-500: #2563eb;
+  --brand-400: #60a5fa;
+  --brand-300: #93c5fd;
+  --surface-900: #0b1220;
+  --surface-800: #111827;
+  --surface-700: #1f2937;
+  --surface-600: #374151;
+  --slate-100: #e5e7eb;
+  --slate-200: #cbd5e1;
+  --slate-300: #94a3b8;
+  --slate-500: #64748b;
+  --slate-700: #334155;
+  --success-500: #2bb673;
+  --warning-500: #f59e0b;
+  --danger-500: #ef4444;
+  --shadow-soft: 0 20px 45px rgba(15, 23, 42, 0.18);
+  --shadow-card: 0 18px 40px rgba(17, 24, 39, 0.12);
+  --ring: rgba(96, 165, 250, 0.5);
+}
+
 html,
 body,
 #root {
   min-width: 0;
   overflow-x: hidden;
+  font-family: Inter, "Segoe UI", sans-serif;
+  background: linear-gradient(180deg, #f4f7fb 0%, #edf4ff 100%);
+  color: var(--surface-800);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  line-height: 1.5;
+  font-weight: 400;
 }
 
 img,
@@ -12,30 +47,42 @@ video,
 iframe {
   max-width: 100%;
   height: auto;
+  display: block;
 }
 
-/* Add these classes to make cards stand out on hover */
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
 .bg-white {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-  
+
 .bg-white:hover {
-  transform: translateY(-10px);
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
 }
-/* session-list: hide scrollbar by default, show thin on hover */
+
 .session-list {
-  /* Firefox */
   scrollbar-width: none;
 }
 .session-list::-webkit-scrollbar {
   width: 0;
   height: 0;
-  transition: width 0.2s;
 }
 
 .session-list:hover {
-  /* Firefox */
   scrollbar-width: thin;
 }
 .session-list:hover::-webkit-scrollbar {
@@ -44,11 +91,10 @@ iframe {
 }
 
 .session-list::-webkit-scrollbar-thumb {
-  background-color: rgba(0,0,0,0.2);
-  border-radius: 3px;
+  background-color: rgba(100, 116, 139, 0.5);
+  border-radius: 999px;
 }
 
-/* Position the bell icon at the top-right corner below navbar */
 .notification-bell {
   position: absolute;
   top: 16px;
@@ -56,44 +102,52 @@ iframe {
   z-index: 100;
 }
 
-/* Style the notification dropdown */
-.notification-dropdown {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  width: 250px;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+.glass-card {
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: var(--shadow-soft);
 }
 
-/* Button styles inside the dropdown */
-.notification-dropdown button {
-  width: 100%;
-  padding: 8px;
-  text-align: left;
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 14px;
+  padding: 0.8rem 1.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  color: white;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  box-shadow: 0 12px 20px rgba(37, 99, 235, 0.2);
+  transition: all 0.2s ease;
 }
 
-.notification-dropdown button:hover {
-  background-color: #f7f7f7;
+.primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 26px rgba(37, 99, 235, 0.24);
 }
 
-/* Style the notification messages */
-.notification-dropdown ul {
-  max-height: 300px;
-  overflow-y: auto;
-  padding: 10px;
+.secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 14px;
+  padding: 0.8rem 1.2rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--brand-800);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  transition: all 0.2s ease;
 }
 
-.notification-dropdown li {
-  padding: 10px;
-  cursor: pointer;
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.96);
 }
 
-.notification-dropdown li:hover {
-  background-color: #f7f7f7;
-}  
+::selection {
+  background: rgba(96, 165, 250, 0.2);
+}
+

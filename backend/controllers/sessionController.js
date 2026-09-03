@@ -7,6 +7,7 @@ const path = require("path");
 const {
   sendNewMeetingScheduledNotification,
   sendNotification,
+  createNotification,
   sendNotificationForFeedbackRequest,
   sendNotificationForSessionCancellation,
 } = require("./notificationController");
@@ -41,11 +42,9 @@ const sendSessionRequest = async (req, res) => {
   const { userId2, sessionDate, sessionTime, skill } = req.body;
 
   if (!userId2 || !sessionDate || !sessionTime || !skill) {
-    return res
-      .status(400)
-      .json({
-        msg: "Please provide all required fields (userId2, sessionDate, sessionTime)",
-      });
+    return res.status(400).json({
+      msg: "Please provide all required fields (userId2, sessionDate, sessionTime)",
+    });
   }
 
   try {
@@ -87,6 +86,19 @@ const acceptSessionRequest = async (req, res) => {
 
     session.status = "accepted"; // Change status to accepted
     await session.save();
+
+    try {
+      await createNotification(
+        session.userId1,
+        "Your exchange request was accepted. You can now start a video call at the scheduled session time.",
+        "video_call_request",
+      );
+    } catch (notificationError) {
+      console.error(
+        "Error sending video call notification:",
+        notificationError.message,
+      );
+    }
 
     res.json({ msg: "Session request accepted", session });
   } catch (err) {
@@ -256,8 +268,8 @@ const sendMessage = async (req, res) => {
 
   await newMessage.save(); // Save the message in the database
 
-  // Emit message with media details to the frontend
-  sessionSocket.emit("receive_message", {
+  // Emit message with media details to the frontend, scoped to the specific session room
+  sessionSocket.to(sessionId).emit("receive_message", {
     content,
     sender: { name: sender.name, id: sender._id }, // Include sender's name and ID
     receiver: { name: receiver.name, id: receiver._id }, // Include receiver's name and ID
@@ -293,11 +305,9 @@ const scheduleSession = async (req, res) => {
   console.log("Received sessionId:", sessionId); // Log sessionId to debug
 
   if (!sessionId || !newMeetingDate || !newMeetingTime) {
-    return res
-      .status(400)
-      .json({
-        msg: "SessionId, newMeetingDate, and newMeetingTime are required",
-      });
+    return res.status(400).json({
+      msg: "SessionId, newMeetingDate, and newMeetingTime are required",
+    });
   }
 
   try {

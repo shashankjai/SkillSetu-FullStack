@@ -19,76 +19,68 @@ const Footer = () => {
   }, []);
 
   return (
-    <footer className="bg-white/80 backdrop-blur border-t border-blue-200 shadow-inner text-blue-900">
-      <div className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-1 sm:grid-cols-3 gap-12 text-base md:text-lg">
-        {/* Brand */}
-        <div>
-          <h2 className="text-3xl font-bold text-indigo-600 mb-4">SkillSetu</h2>
-          <p className="text-gray-600 text-base leading-relaxed">
-            A collaborative platform for peer-to-peer learning and skill
-            development.
-          </p>
+    <footer className="site-footer">
+      <div className="footer-grid">
+        <div className="footer-brand">
+          <span className="brand-mark">S</span>
+          <div>
+            <h2>SkillSetu</h2>
+            <p>
+              A learning network built around trust, exchange, and practical
+              skill growth.
+            </p>
+          </div>
         </div>
 
-        {/* Quick Links */}
         <div>
-          <h3 className="font-semibold text-gray-700 mb-3 text-lg">Quick Links</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <h3>Explore</h3>
+          <div className="footer-links">
             {internalLinks.map(({ name, to }) => (
-              <Link
-                key={name}
-                to={to}
-                className="hover:text-indigo-600 transition duration-300 text-base"
-              >
+              <Link key={name} to={to}>
                 {name}
               </Link>
             ))}
           </div>
         </div>
 
-        {/* Social */}
-        <div className="flex flex-col">
-          <h3 className="text-left font-semibold text-gray-700 mb-3 text-lg">
-            Connect with us
-          </h3>
-          <div className="flex space-x-5 mt-2 items-center">
+        <div>
+          <h3>Connect</h3>
+          <div className="social-row">
             <a
               href="https://github.com/shashankjai"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-black transition transform hover:scale-110"
+              aria-label="GitHub"
             >
-              <FaGithub size={28} />
+              <FaGithub size={20} />
             </a>
-
             <a
               href="https://www.linkedin.com/in/shashank-jaiswal-203b15289/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-blue-700 transition transform hover:scale-110"
+              aria-label="LinkedIn"
             >
-              <FaLinkedin size={28} />
+              <FaLinkedin size={20} />
             </a>
-
             <a
               href="https://twitter.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-sky-500 transition transform hover:scale-110"
+              aria-label="Twitter"
             >
-              <FaTwitter size={28} />
+              <FaTwitter size={20} />
             </a>
           </div>
         </div>
       </div>
 
-      <div className="text-center text-gray-500 text-sm py-5 border-t border-gray-200">
-        © {new Date().getFullYear()} SkillSetu. All rights reserved. | Developed by{" "}
+      <div className="footer-bottom">
+        © {new Date().getFullYear()} SkillSetu. All rights reserved. | Developed
+        by{" "}
         <a
           href="https://shashankfolio.netlify.app/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-indigo-600 hover:underline font-bold text-base"
         >
           Shashank Jaiswal
         </a>

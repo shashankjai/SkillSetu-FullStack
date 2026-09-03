@@ -19,7 +19,6 @@ import AboutUsPage from "./pages/AboutUSPage";
 import ScrollToTop from "./components/ScrollToTop";
 
 import PrivateRoute from "./components/common/PrivateRoute";
-import AlreadyLoggedIn from "./pages/AlreadyLoggedIn";
 
 import "./App.css";
 
@@ -29,35 +28,17 @@ function App() {
       <ScrollToTop />
 
       <Routes>
-
         {/* =========================
             PUBLIC ROUTES
         ========================== */}
 
-        <Route
-          path="/"
-          element={<HomePage />}
-        />
+        <Route path="/" element={<HomePage />} />
 
-        <Route
-          path="/login"
-          element={<LoginPage />}
-        />
+        <Route path="/login" element={<LoginPage />} />
 
-        <Route
-          path="/register"
-          element={<RegisterPage />}
-        />
+        <Route path="/register" element={<RegisterPage />} />
 
-        <Route
-          path="/already-logged-in"
-          element={<AlreadyLoggedIn />}
-        />
-
-        <Route
-          path="/about-us"
-          element={<AboutUsPage />}
-        />
+        <Route path="/about-us" element={<AboutUsPage />} />
 
         {/* =========================
             PROTECTED USER ROUTES
@@ -65,37 +46,24 @@ function App() {
 
         <Route
           path="/profile"
-          element={
-            <PrivateRoute element={<ProfilePage />} />
-          }
+          element={<PrivateRoute element={<ProfilePage />} />}
         />
 
         <Route
           path="/skill-matching"
-          element={
-            <PrivateRoute element={<SkillMatchingPage />} />
-          }
+          element={<PrivateRoute element={<SkillMatchingPage />} />}
         />
 
-        <Route
-          path="/chat"
-          element={
-            <PrivateRoute element={<ChatPage />} />
-          }
-        />
+        <Route path="/chat" element={<PrivateRoute element={<ChatPage />} />} />
 
         <Route
           path="/chat/:sessionId"
-          element={
-            <PrivateRoute element={<ChatPage />} />
-          }
+          element={<PrivateRoute element={<ChatPage />} />}
         />
 
         <Route
           path="/profile-settings"
-          element={
-            <PrivateRoute element={<ProfileSettingsPage />} />
-          }
+          element={<PrivateRoute element={<ProfileSettingsPage />} />}
         />
 
         {/* =========================
@@ -111,32 +79,19 @@ function App() {
             />
           }
         >
-          <Route
-            path="users"
-            element={<UserManagement />}
-          />
+          <Route path="users" element={<UserManagement />} />
 
-          <Route
-            path="reports"
-            element={<ReportManagement />}
-          />
+          <Route path="reports" element={<ReportManagement />} />
 
-          <Route
-            path="analytics"
-            element={<AnalyticsOverview />}
-          />
+          <Route path="analytics" element={<AnalyticsOverview />} />
 
-          <Route
-            path="profile"
-            element={<AdminProfile />}
-          />
+          <Route path="profile" element={<AdminProfile />} />
 
           <Route
             path="engagement-analytics"
             element={<EngagementAnalytics />}
           />
         </Route>
-
       </Routes>
     </Router>
   );

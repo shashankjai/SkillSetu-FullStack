@@ -71,13 +71,13 @@ const MessageInput = ({ sendMessage }) => {
   };
 
   return (
-    <div className="message-input flex flex-wrap gap-2 items-center p-4 bg-gradient-to-br from-blue-600 via-blue-400 to-blue-300 rounded-lg shadow-md w-full">
+    <div className="message-input flex w-full flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-slate-900/80 p-4 shadow-[0_20px_40px_rgba(15,23,42,0.25)]">
       <input
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Type a message..."
-        className="flex-1 min-w-[100px] sm:min-w-[150px] p-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-white"
+        className="min-w-[100px] flex-1 rounded-lg border border-slate-600 bg-slate-800 p-2.5 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:min-w-[150px]"
       />
 
       <input
@@ -85,7 +85,7 @@ const MessageInput = ({ sendMessage }) => {
         type="file"
         accept="image/*,video/*,audio/*"
         onChange={handleFileChange}
-        className="p-2 border-2 border-gray-300 rounded-lg cursor-pointer max-w-[160px] w-full sm:w-auto text-sm"
+        className="max-w-[160px] w-full cursor-pointer rounded-lg border border-slate-600 bg-slate-800 p-2 text-sm text-slate-200 sm:w-auto"
       />
 
       {previewUrl && (
@@ -124,7 +124,7 @@ const MessageInput = ({ sendMessage }) => {
 
       <button
         onClick={handleAttachLink}
-        className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out"
+        className="rounded-lg bg-blue-600 p-2 text-white transition duration-300 hover:bg-blue-500"
       >
         <AiOutlineLink className="text-white text-xl" />
       </button>
@@ -134,13 +134,13 @@ const MessageInput = ({ sendMessage }) => {
           value={link}
           onChange={handleLinkChange}
           placeholder="Enter a URL"
-          className="p-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[150px]"
+          className="min-w-[150px] rounded-lg border border-slate-600 bg-slate-800 p-2 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       )}
 
       <button
         onClick={handleSendMessage}
-        className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out"
+        className="rounded-lg bg-blue-600 p-2 text-white transition duration-300 hover:bg-blue-500"
       >
         <FaPaperPlane className="text-white text-xl" />
       </button>

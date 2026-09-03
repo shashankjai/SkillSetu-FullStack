@@ -19,18 +19,30 @@ cron.schedule("* * * * *", async () => {
   const now = new Date();
 
   const upcomingSessions = await Session.find({
-    sessionTime: { $gt: now }, // Ensure the session is in the future
+    $or: [
+      {
+        newMeetingDate: { $exists: true, $ne: null },
+        sessionTime: { $exists: true },
+      },
+      { sessionTime: { $exists: true } },
+    ],
   });
 
-  upcomingSessions.forEach(async (session) => {
-    // Send reminder 1 hour before the session time
-    if (new Date(session.sessionTime) - now <= 60 * 60 * 1000) {
-      // 1 hour before session
-      const message = `Reminder: You have a scheduled session with ${session.userId1.name} at ${session.sessionTime}.`;
+  for (const session of upcomingSessions) {
+    const scheduledDate = session.newMeetingDate || session.sessionDate;
+    const scheduledTime = session.newMeetingTime || session.sessionTime;
 
-      await sendReminderNotification(session._id, message, session.sessionTime);
+    if (!scheduledDate || !scheduledTime) continue;
+
+    const sessionDateTime = new Date(
+      `${scheduledDate.toISOString().split("T")[0]}T${scheduledTime}`,
+    );
+
+    if (sessionDateTime > now && sessionDateTime - now <= 60 * 60 * 1000) {
+      const message = `Reminder: You have a scheduled session with ${session.userId1?.name || "your partner"} at ${scheduledTime}.`;
+      await sendReminderNotification(session._id, message, sessionDateTime);
     }
-  });
+  }
 });
 
 // Internal helper to create and emit a notification (can be called internally)
@@ -75,6 +87,13 @@ const sendNotification = async (req, res) => {
 // Get all notifications for a specific user
 const getNotifications = async (req, res) => {
   const { userId } = req.params;
+  const currentUserId = req.user.id;
+
+  if (userId !== currentUserId && req.user.role !== "admin") {
+    return res
+      .status(403)
+      .json({ msg: "You can only view your own notifications." });
+  }
 
   try {
     const notifications = await Notification.find({ userId }).sort({
@@ -92,6 +111,20 @@ const markAsRead = async (req, res) => {
   const { notificationId } = req.params;
 
   try {
+    const notification = await Notification.findById(notificationId);
+    if (!notification) {
+      return res.status(404).json({ msg: "Notification not found." });
+    }
+
+    if (
+      notification.userId.toString() !== req.user.id &&
+      req.user.role !== "admin"
+    ) {
+      return res
+        .status(403)
+        .json({ msg: "You can only update your own notifications." });
+    }
+
     const updatedNotification = await Notification.findByIdAndUpdate(
       notificationId,
       { isRead: true },
@@ -107,6 +140,12 @@ const markAsRead = async (req, res) => {
 // Mark all notifications for a user as read
 const markAllAsRead = async (req, res) => {
   const { userId } = req.params;
+
+  if (userId !== req.user.id && req.user.role !== "admin") {
+    return res
+      .status(403)
+      .json({ msg: "You can only update your own notifications." });
+  }
 
   try {
     await Notification.updateMany({ userId, isRead: false }, { isRead: true });
@@ -215,6 +254,7 @@ const sendNotificationForSessionCancellation = async (userId) => {
 };
 
 module.exports = {
+  createNotification,
   sendNotification,
   getNotifications,
   markAsRead,

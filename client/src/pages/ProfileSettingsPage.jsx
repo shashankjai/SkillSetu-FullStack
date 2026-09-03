@@ -159,7 +159,7 @@ const ProfileSettingsPage = () => {
   };
 
   return (
-    <div className="min-h-screen relative">
+    <div className="relative min-h-screen bg-slate-950 text-white">
       {/* Background layer */}
       <Background />
 
@@ -167,21 +167,25 @@ const ProfileSettingsPage = () => {
       <div className="relative z-10 bg-transparent">
         <Navbar />
 
-        <div className="bg-gradient-to-br from-blue-400 via-blue-300 to-blue-200 max-w-xl mx-auto p-6 shadow-lg rounded-xl mt-6">
-          <h2 className="text-2xl font-bold mb-4 text-white">Edit Profile</h2>
-          {message && <div className="mb-4 text-green-600">{message}</div>}
+        <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-white/10 bg-white/5 p-6 text-white shadow-[0_20px_40px_rgba(15,23,42,0.3)] backdrop-blur-xl">
+          <h2 className="mb-4 text-2xl font-bold text-white">Edit Profile</h2>
+          {message && (
+            <div className="mb-4 rounded-lg border border-blue-400/30 bg-blue-600/20 p-3 text-blue-200">
+              {message}
+            </div>
+          )}
 
           {/* Avatar + Upload */}
           <div className="mb-6 flex justify-center">
             <label htmlFor="profilePicture" className="cursor-pointer">
-              <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center relative overflow-hidden">
+              <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-blue-400/60 bg-slate-800 shadow-lg shadow-blue-950/40">
                 <img
                   src={avatarSrc}
                   alt="Profile"
                   className="w-full h-full object-cover rounded-full"
                 />
                 <div className="absolute top-0 right-0 m-1">
-                  <FaEdit className="text-white bg-gray-700 rounded-full p-1.5 cursor-pointer hover:bg-blue-500 transition" />
+                  <FaEdit className="cursor-pointer rounded-full bg-slate-900/90 p-1.5 text-white transition hover:bg-blue-600" />
                 </div>
               </div>
             </label>
@@ -200,7 +204,7 @@ const ProfileSettingsPage = () => {
             <div>
               <label
                 htmlFor="name"
-                className="block mb-1 font-semibold text-gray-700"
+                className="mb-1 block font-semibold text-slate-300"
               >
                 Name
               </label>
@@ -212,7 +216,7 @@ const ProfileSettingsPage = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
+                className="w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -220,7 +224,7 @@ const ProfileSettingsPage = () => {
             <div>
               <label
                 htmlFor="status"
-                className="block mb-1 font-semibold text-gray-700"
+                className="mb-1 block font-semibold text-slate-300"
               >
                 Status
               </label>
@@ -232,7 +236,7 @@ const ProfileSettingsPage = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, status: e.target.value })
                 }
-                className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
+                className="w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -240,7 +244,7 @@ const ProfileSettingsPage = () => {
             <div>
               <label
                 htmlFor="linkedin"
-                className="block mb-1 font-semibold text-gray-700"
+                className="mb-1 block font-semibold text-slate-300"
               >
                 LinkedIn URL
               </label>
@@ -255,7 +259,7 @@ const ProfileSettingsPage = () => {
                     socials: { ...formData.socials, linkedin: e.target.value },
                   })
                 }
-                className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
+                className="w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -263,7 +267,7 @@ const ProfileSettingsPage = () => {
             <div>
               <label
                 htmlFor="facebook"
-                className="block mb-1 font-semibold text-gray-700"
+                className="mb-1 block font-semibold text-slate-300"
               >
                 Facebook URL
               </label>
@@ -278,7 +282,7 @@ const ProfileSettingsPage = () => {
                     socials: { ...formData.socials, facebook: e.target.value },
                   })
                 }
-                className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
+                className="w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -286,7 +290,7 @@ const ProfileSettingsPage = () => {
             <div>
               <label
                 htmlFor="twitter"
-                className="block mb-1 font-semibold text-gray-700"
+                className="mb-1 block font-semibold text-slate-300"
               >
                 Twitter URL
               </label>
@@ -301,7 +305,7 @@ const ProfileSettingsPage = () => {
                     socials: { ...formData.socials, twitter: e.target.value },
                   })
                 }
-                className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
+                className="w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -309,7 +313,7 @@ const ProfileSettingsPage = () => {
             <div>
               <label
                 htmlFor="skillsToTeach"
-                className="block mb-1 font-semibold text-gray-700"
+                className="mb-1 block font-semibold text-slate-300"
               >
                 Skills You Can Teach (comma-separated)
               </label>
@@ -321,7 +325,7 @@ const ProfileSettingsPage = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, skillsToTeach: e.target.value })
                 }
-                className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
+                className="w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -329,7 +333,7 @@ const ProfileSettingsPage = () => {
             <div>
               <label
                 htmlFor="skillsToLearn"
-                className="block mb-1 font-semibold text-gray-700"
+                className="mb-1 block font-semibold text-slate-300"
               >
                 Skills You Want to Learn (comma-separated)
               </label>
@@ -341,20 +345,20 @@ const ProfileSettingsPage = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, skillsToLearn: e.target.value })
                 }
-                className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
+                className="w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
           </div>
 
           <button
             onClick={handleUpdate}
-            className="w-full mt-6 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+            className="mt-6 w-full rounded-lg bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-500"
           >
             Save Changes
           </button>
 
           {/* Change Password */}
-          <div className="mt-8 pt-6 border-t space-y-6">
+          <div className="mt-8 space-y-6 border-t border-white/10 pt-6">
             {[
               {
                 key: "currentPassword",
@@ -381,7 +385,7 @@ const ProfileSettingsPage = () => {
               <div key={key} className="relative">
                 <label
                   htmlFor={id}
-                  className="block mb-1 font-semibold text-gray-700"
+                  className="mb-1 block font-semibold text-slate-300"
                 >
                   {label}
                 </label>
@@ -396,10 +400,10 @@ const ProfileSettingsPage = () => {
                       [key]: e.target.value,
                     }))
                   }
-                  className="w-full p-3 border rounded-lg bg-gray-100 focus:ring-2 focus:ring-blue-400"
+                  className="w-full rounded-lg border border-slate-600 bg-slate-800 p-3 text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
                 <div
-                  className="absolute top-10 right-3 cursor-pointer"
+                  className="absolute right-3 top-10 cursor-pointer text-slate-400 transition hover:text-blue-300"
                   onClick={() =>
                     setPasswords((prev) => ({
                       ...prev,
@@ -418,7 +422,7 @@ const ProfileSettingsPage = () => {
 
             <button
               onClick={handlePasswordChange}
-              className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition"
+              className="w-full rounded-lg bg-rose-600 py-3 font-semibold text-white transition hover:bg-rose-500"
             >
               Change Password
             </button>
