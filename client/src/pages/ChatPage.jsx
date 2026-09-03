@@ -15,6 +15,7 @@ import { IoMdWarning } from "react-icons/io"; // Importing a warning icon for th
 
 const ChatPage = () => {
   const { sessionId } = useParams(); // Get sessionId from URL parameter
+  const loggedInUser = JSON.parse(localStorage.getItem("user") || "null");
   const [connections, setConnections] = useState([]); // List of connections
   const [selectedConnection, setSelectedConnection] = useState(null); // Selected connection for chat
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false); // Feedback Modal state
@@ -64,20 +65,25 @@ const ChatPage = () => {
     fetchConnections();
   }, [sessionId]);
 
-  // Set up Socket.io connection (only once)
+  // Set up Socket.io connection for the selected session room
   useEffect(() => {
-    if (!sessionId) {
+    const activeSessionId = sessionId || selectedConnection?._id;
+    if (!activeSessionId) {
       console.error("Session ID is undefined.");
-      return;
+      return undefined;
     }
 
     const socketIo = io(`${API_URL}/sessions`, {
       transports: ["websocket"],
-      query: { sessionId },
+      query: { sessionId: activeSessionId },
     });
 
     socketIo.on("connect", () => {
       console.log("WebSocket connected:", socketIo.id);
+      socketIo.emit("join-call", {
+        sessionId: activeSessionId,
+        userId: loggedInUser?._id,
+      });
     });
 
     socketIo.on("receive_message", (data) => {
@@ -96,14 +102,16 @@ const ChatPage = () => {
     });
 
     socketIo.on("video-call-request", (data) => {
-      if (!data || !data.senderId || data.senderId === loggedInUser?._id)
+      if (!data || !data.senderId || data.senderId === loggedInUser?._id) {
         return;
+      }
       setIncomingCallRequest(data);
     });
 
     socketIo.on("video-call-accepted", (data) => {
-      if (!data || !data.acceptedBy || data.acceptedBy === loggedInUser?._id)
+      if (!data || !data.acceptedBy || data.acceptedBy === loggedInUser?._id) {
         return;
+      }
       setIncomingCallRequest(null);
     });
 
@@ -111,8 +119,9 @@ const ChatPage = () => {
 
     return () => {
       socketIo.disconnect();
+      setSocket(null);
     };
-  }, [sessionId]);
+  }, [sessionId, selectedConnection?._id, loggedInUser?._id]);
 
   useEffect(() => {
     const timeRefresh = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -377,9 +386,6 @@ const ChatPage = () => {
       );
     }
   };
-
-  // Get the logged-in user
-  const loggedInUser = JSON.parse(localStorage.getItem("user"));
 
   // Check if the logged-in user is user1 or user2 in the current session
   const isUser1 = selectedConnection?.userId1?._id === loggedInUser?._id;

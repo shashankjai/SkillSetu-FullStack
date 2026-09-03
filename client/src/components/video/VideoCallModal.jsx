@@ -21,6 +21,7 @@ const VideoCallModal = ({ isOpen, onClose, session, currentUserId }) => {
   const peerConnectionRef = useRef(null);
   const socketRef = useRef(null);
   const localStreamRef = useRef(null);
+  const screenStreamRef = useRef(null);
   const hasCreatedOfferRef = useRef(false);
   const onCloseRef = useRef(onClose);
 
@@ -310,41 +311,84 @@ const VideoCallModal = ({ isOpen, onClose, session, currentUserId }) => {
 
   const toggleMute = () => {
     if (!localStreamRef.current) return;
+
+    const nextMuteState = !isMuted;
     localStreamRef.current.getAudioTracks().forEach((track) => {
-      track.enabled = !track.enabled;
+      track.enabled = !nextMuteState;
     });
-    setIsMuted((prev) => !prev);
+    setIsMuted(nextMuteState);
     socketRef.current?.emit("toggle-mute", {
       sessionId: session?._id,
       userId: currentUserId,
-      isMuted: !isMuted,
+      isMuted: nextMuteState,
     });
   };
 
   const toggleVideo = () => {
     if (!localStreamRef.current) return;
+
+    const nextVideoOffState = !isVideoOff;
     localStreamRef.current.getVideoTracks().forEach((track) => {
-      track.enabled = !track.enabled;
+      track.enabled = !nextVideoOffState;
     });
-    setIsVideoOff((prev) => !prev);
+    setIsVideoOff(nextVideoOffState);
     socketRef.current?.emit("toggle-video", {
       sessionId: session?._id,
       userId: currentUserId,
-      isVideoOff: !isVideoOff,
+      isVideoOff: nextVideoOffState,
     });
   };
 
+  const restoreCameraVideoTrack = () => {
+    if (!peerConnectionRef.current || !localStreamRef.current) return;
+
+    const localCameraTrack = localStreamRef.current.getVideoTracks()[0];
+    if (!localCameraTrack) return;
+
+    const sender = peerConnectionRef.current
+      ?.getSenders()
+      .find((s) => s.track?.kind === "video");
+
+    if (sender) {
+      sender.replaceTrack(localCameraTrack);
+    }
+  };
+
   const handleScreenShare = async () => {
-    if (isScreenSharing) return;
+    if (!peerConnectionRef.current) return;
+
+    if (isScreenSharing) {
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach((track) => track.stop());
+        screenStreamRef.current = null;
+      }
+      restoreCameraVideoTrack();
+      setIsScreenSharing(false);
+      return;
+    }
+
     try {
       const screenStream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
       });
+
+      screenStreamRef.current = screenStream;
       const videoTrack = screenStream.getVideoTracks()[0];
       const sender = peerConnectionRef.current
         ?.getSenders()
         .find((s) => s.track?.kind === "video");
+
       if (sender) sender.replaceTrack(videoTrack);
+
+      videoTrack.onended = () => {
+        if (screenStreamRef.current) {
+          screenStreamRef.current.getTracks().forEach((track) => track.stop());
+          screenStreamRef.current = null;
+        }
+        restoreCameraVideoTrack();
+        setIsScreenSharing(false);
+      };
+
       setIsScreenSharing(true);
     } catch (error) {
       console.error("Unable to share screen:", error);
