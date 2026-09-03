@@ -227,6 +227,30 @@ sessionSocket.on("connection", (socket) => {
     }
   });
 
+  socket.on(
+    "video-call-request",
+    ({ sessionId: roomId, senderId, senderName }) => {
+      if (!roomId || !senderId) return;
+      socket.to(roomId).emit("video-call-request", {
+        sessionId: roomId,
+        senderId,
+        senderName: senderName || "Peer",
+      });
+    },
+  );
+
+  socket.on(
+    "video-call-accepted",
+    ({ sessionId: roomId, senderId, acceptedBy }) => {
+      if (!roomId || !acceptedBy) return;
+      socket.to(roomId).emit("video-call-accepted", {
+        sessionId: roomId,
+        senderId,
+        acceptedBy,
+      });
+    },
+  );
+
   socket.on("offer", ({ sessionId: roomId, senderId, receiverId, offer }) => {
     if (!roomId || !offer) return;
     socket.to(roomId).emit("offer", { offer, senderId, receiverId });

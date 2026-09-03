@@ -22,6 +22,11 @@ const VideoCallModal = ({ isOpen, onClose, session, currentUserId }) => {
   const socketRef = useRef(null);
   const localStreamRef = useRef(null);
   const hasCreatedOfferRef = useRef(false);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   const [callStatus, setCallStatus] = useState("Connecting");
   const [isMuted, setIsMuted] = useState(false);
@@ -285,7 +290,7 @@ const VideoCallModal = ({ isOpen, onClose, session, currentUserId }) => {
       isMounted = false;
       cleanupCall();
     };
-  }, [isOpen, session?._id, currentUserId, onClose]);
+  }, [isOpen, session?._id, currentUserId]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -348,7 +353,7 @@ const VideoCallModal = ({ isOpen, onClose, session, currentUserId }) => {
 
   const endCall = async () => {
     await cleanupCall();
-    onClose();
+    onCloseRef.current?.();
   };
 
   if (!isOpen) return null;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { io } from "socket.io-client";
 import axios from "axios";
 import Navbar from "../components/navbar/Navbar"; // Import Navbar
@@ -32,9 +32,12 @@ const ChatPage = () => {
   const [screenshot, setScreenshot] = useState(null);
   const [reportSuccess, setReportSuccess] = useState(false); // State for success message
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
+  const [incomingCallRequest, setIncomingCallRequest] = useState(null);
   const [currentTime, setCurrentTime] = useState(() => new Date());
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const closeVideoCall = useCallback(() => setIsVideoCallOpen(false), []);
 
   // Fetch accepted session connections
   useEffect(() => {
@@ -90,6 +93,18 @@ const ChatPage = () => {
           },
         ]);
       }
+    });
+
+    socketIo.on("video-call-request", (data) => {
+      if (!data || !data.senderId || data.senderId === loggedInUser?._id)
+        return;
+      setIncomingCallRequest(data);
+    });
+
+    socketIo.on("video-call-accepted", (data) => {
+      if (!data || !data.acceptedBy || data.acceptedBy === loggedInUser?._id)
+        return;
+      setIncomingCallRequest(null);
     });
 
     setSocket(socketIo);
@@ -448,6 +463,31 @@ const ChatPage = () => {
     getSessionStartDateTime(selectedConnection) &&
     getSessionStartDateTime(selectedConnection) <= currentTime;
 
+  const handleStartVideoCall = () => {
+    if (!socket || !selectedConnection?._id || !loggedInUser?._id) return;
+
+    socket.emit("video-call-request", {
+      sessionId: selectedConnection._id,
+      senderId: loggedInUser._id,
+      senderName: loggedInUser.name || "User",
+    });
+
+    setIsVideoCallOpen(true);
+  };
+
+  const handleAcceptVideoCall = () => {
+    if (!socket || !selectedConnection?._id || !loggedInUser?._id) return;
+
+    socket.emit("video-call-accepted", {
+      sessionId: selectedConnection._id,
+      senderId: incomingCallRequest?.senderId,
+      acceptedBy: loggedInUser._id,
+    });
+
+    setIncomingCallRequest(null);
+    setIsVideoCallOpen(true);
+  };
+
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">
       <Background />
@@ -574,12 +614,37 @@ const ChatPage = () => {
                   <MessageInput sendMessage={handleSendMessage} />
                 )}
 
+                {incomingCallRequest && (
+                  <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-100">
+                    <p>
+                      <strong>
+                        {incomingCallRequest.senderName || "Peer"}
+                      </strong>{" "}
+                      wants to start a video call.
+                    </p>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={handleAcceptVideoCall}
+                        className="rounded-lg bg-emerald-500 px-4 py-2 font-semibold text-white hover:bg-emerald-400"
+                      >
+                        Accept
+                      </button>
+                      <button
+                        onClick={() => setIncomingCallRequest(null)}
+                        className="rounded-lg border border-white/20 px-4 py-2 font-semibold text-white hover:bg-white/5"
+                      >
+                        Decline
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Buttons Row */}
                 <div className="flex flex-wrap justify-center items-center gap-4 mt-4">
                   {/* Start Video Call Button */}
                   {selectedConnection && (
                     <button
-                      onClick={() => setIsVideoCallOpen(true)}
+                      onClick={handleStartVideoCall}
                       disabled={!canStartVideoCall}
                       className={`px-4 py-2 rounded-lg font-semibold text-white shadow-lg transition duration-300 ease-in-out ${
                         canStartVideoCall
@@ -827,7 +892,7 @@ const ChatPage = () => {
 
       <VideoCallModal
         isOpen={isVideoCallOpen}
-        onClose={() => setIsVideoCallOpen(false)}
+        onClose={closeVideoCall}
         session={selectedConnection}
         currentUserId={loggedInUser?._id}
       />
