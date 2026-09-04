@@ -1,7 +1,7 @@
 // src/components/NotificationDropdown.jsx
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { markAsRead } from "../redux/slices/notificationSlice";
+import { markAllAsRead, markAsRead } from "../redux/slices/notificationSlice";
 import axios from "axios"; // Import axios here
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
@@ -11,47 +11,38 @@ const NotificationDropdown = ({ onClose }) => {
   const { notifications } = useSelector((state) => state.notifications);
   const [filter, setFilter] = useState("all"); // Default filter is 'all'
 
-  const handleMarkAsRead = (id) => {
-    dispatch(markAsRead(id)); // Mark notification as read in Redux
+  const handleMarkAsRead = async (id) => {
+    if (!id) return;
 
-    // Persist the update to the backend
     const token = localStorage.getItem("token");
-    axios
-      .patch(
+    try {
+      await axios.patch(
         `${API_URL}/api/notifications/${id}/read`,
         {},
-        {
-          headers: { "x-auth-token": token },
-        },
-      )
-      .catch((err) => {
-        console.error("Error updating read status in backend:", err.message);
-      });
+        { headers: { "x-auth-token": token } },
+      );
+      dispatch(markAsRead(id));
+    } catch (err) {
+      console.error("Error updating read status in backend:", err.message);
+    }
   };
 
-  const handleMarkAllAsRead = () => {
-    notifications.forEach((notification) => {
-      if (!notification.isRead) {
-        dispatch(markAsRead(notification._id)); // Update in Redux state
+  const handleMarkAllAsRead = async () => {
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user") || "null");
 
-        // Persist the change to the backend
-        const token = localStorage.getItem("token");
-        axios
-          .patch(
-            `${API_URL}/api/notifications/${notification._id}/read`,
-            {},
-            {
-              headers: { "x-auth-token": token },
-            },
-          )
-          .catch((err) => {
-            console.error(
-              "Error marking all notifications as read:",
-              err.message,
-            );
-          });
-      }
-    });
+    if (!user?._id || !token) return;
+
+    try {
+      await axios.patch(
+        `${API_URL}/api/notifications/${user._id}/read-all`,
+        {},
+        { headers: { "x-auth-token": token } },
+      );
+      dispatch(markAllAsRead());
+    } catch (err) {
+      console.error("Error marking all notifications as read:", err.message);
+    }
   };
 
   const toggleFilter = (filterType) => {

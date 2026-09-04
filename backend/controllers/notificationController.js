@@ -63,9 +63,12 @@ const createNotification = async (userId, message, type) => {
 
   if (notificationSocket) {
     notificationSocket.emit("new_notification", {
+      _id: newNotification._id,
       userId: validUserId,
       message,
       type,
+      isRead: newNotification.isRead,
+      createdAt: newNotification.createdAt,
     });
   }
 
@@ -171,34 +174,8 @@ const sendNewMeetingScheduledNotification = async (session, message) => {
     const userId1 = new mongoose.Types.ObjectId(session.userId1._id); // Use new to properly create ObjectId
     const userId2 = new mongoose.Types.ObjectId(session.userId2._id); // Use new to properly create ObjectId
 
-    // Emit notification to both users via WebSocket
-    notificationSocket
-      .to(`user_${userId1}`)
-      .emit("newMeetingScheduled", { message });
-    notificationSocket
-      .to(`user_${userId2}`)
-      .emit("newMeetingScheduled", { message });
-
-    console.log(`Notification sent to users ${userId1} and ${userId2}`);
-
-    // Create and save the notifications in the database for both users
-    //const Notification = require('./src/models/Notification'); // Assuming Notification model is in this location
-
-    const notification1 = new Notification({
-      userId: userId1,
-      message: message,
-      type: "new_meeting_scheduled",
-    });
-
-    const notification2 = new Notification({
-      userId: userId2,
-      message: message,
-      type: "new_meeting_scheduled",
-    });
-
-    // Save both notifications to the database
-    await notification1.save();
-    await notification2.save();
+    await createNotification(userId1, message, "new_meeting_scheduled");
+    await createNotification(userId2, message, "new_meeting_scheduled");
 
     console.log(`Notifications saved for users ${userId1} and ${userId2}`);
   } catch (err) {
@@ -222,9 +199,16 @@ const sendReminderNotification = async (sessionId, message, reminderTime) => {
     const sender = session.userId1;
     const receiver = session.userId2;
 
-    // Send reminder to both users using internal helper
-    await createNotification(sender._id, message, "reminder");
-    await createNotification(receiver._id, message, "reminder");
+    // The cron job runs every minute. Keep one reminder per user/session message.
+    const reminderExists = async (userId) =>
+      Notification.exists({ userId, type: "reminder", message });
+
+    if (!(await reminderExists(sender._id))) {
+      await createNotification(sender._id, message, "reminder");
+    }
+    if (!(await reminderExists(receiver._id))) {
+      await createNotification(receiver._id, message, "reminder");
+    }
   } catch (err) {
     console.error("Error sending reminder notification:", err.message);
   }

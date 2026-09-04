@@ -14,17 +14,15 @@ const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 
 const NotificationBell = () => {
   const dispatch = useDispatch();
-  const { notifications, unreadCount } = useSelector(
-    (state) => state.notifications,
-  );
+  const { unreadCount } = useSelector((state) => state.notifications);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
+    const user = storedUser ? JSON.parse(storedUser) : null;
 
-    if (token && storedUser) {
-      const user = JSON.parse(storedUser);
+    if (token && user?._id) {
       axios
         .get(`${API_URL}/api/notifications/${user._id}`, {
           headers: { "x-auth-token": token },
@@ -37,7 +35,9 @@ const NotificationBell = () => {
 
     const socket = io(`${API_URL}/notifications`);
     socket.on("new_notification", (notification) => {
-      dispatch(addNotification(notification));
+      if (notification.userId?.toString() === user?._id?.toString()) {
+        dispatch(addNotification(notification));
+      }
     });
     return () => socket.disconnect();
   }, [dispatch]);

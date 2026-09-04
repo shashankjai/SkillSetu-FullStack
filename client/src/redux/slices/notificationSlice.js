@@ -35,9 +35,15 @@ const notificationSlice = createSlice({
         ).length; // Update unread count
       }
     },
+    markAllAsRead: (state) => {
+      state.notifications.forEach((notification) => {
+        notification.isRead = true;
+      });
+      state.unreadCount = 0;
+    },
   },
 });
 
-export const { setNotifications, addNotification, markAsRead } =
+export const { setNotifications, addNotification, markAsRead, markAllAsRead } =
   notificationSlice.actions;
 export default notificationSlice.reducer;
