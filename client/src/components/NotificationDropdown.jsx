@@ -14,6 +14,7 @@ const NotificationDropdown = ({ onClose }) => {
   const handleMarkAsRead = async (id) => {
     if (!id) return;
 
+    dispatch(markAsRead(id));
     const token = localStorage.getItem("token");
     try {
       await axios.patch(
@@ -21,7 +22,6 @@ const NotificationDropdown = ({ onClose }) => {
         {},
         { headers: { "x-auth-token": token } },
       );
-      dispatch(markAsRead(id));
     } catch (err) {
       console.error("Error updating read status in backend:", err.message);
     }
@@ -33,13 +33,13 @@ const NotificationDropdown = ({ onClose }) => {
 
     if (!user?._id || !token) return;
 
+    dispatch(markAllAsRead());
     try {
       await axios.patch(
         `${API_URL}/api/notifications/${user._id}/read-all`,
         {},
         { headers: { "x-auth-token": token } },
       );
-      dispatch(markAllAsRead());
     } catch (err) {
       console.error("Error marking all notifications as read:", err.message);
     }
