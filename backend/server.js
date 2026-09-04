@@ -69,7 +69,7 @@ const corsOptions = {
     }
     return callback(new Error("CORS policy: Origin not allowed"), false);
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "x-auth-token"],
   credentials: true,
 };
@@ -83,7 +83,7 @@ const io = socketIo(server, {
       }
       return callback(new Error("CORS policy: Origin not allowed"), false);
     },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "x-auth-token"],
     credentials: true,
   },
