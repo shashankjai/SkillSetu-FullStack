@@ -6,6 +6,31 @@ const initialState = {
   unreadCount: 0, // Count unread notifications
 };
 
+const getReadIdsStorageKey = () => {
+  try {
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    return user?._id ? `skillsetu-read-notifications-${user._id}` : null;
+  } catch {
+    return null;
+  }
+};
+
+const getPersistedReadIds = () => {
+  const key = getReadIdsStorageKey();
+  if (!key) return new Set();
+
+  try {
+    return new Set(JSON.parse(localStorage.getItem(key) || "[]"));
+  } catch {
+    return new Set();
+  }
+};
+
+const persistReadIds = (readIds) => {
+  const key = getReadIdsStorageKey();
+  if (key) localStorage.setItem(key, JSON.stringify([...readIds]));
+};
+
 const removeDuplicateReminders = (notifications) => {
   const seenReminders = new Set();
 
@@ -30,11 +55,15 @@ const notificationSlice = createSlice({
           .filter((notification) => notification.isRead)
           .map((notification) => notification._id),
       );
+      const persistedReadIds = getPersistedReadIds();
 
       state.notifications = removeDuplicateReminders(action.payload).map(
         (notification) => ({
           ...notification,
-          isRead: notification.isRead || locallyReadIds.has(notification._id),
+          isRead:
+            notification.isRead ||
+            locallyReadIds.has(notification._id) ||
+            persistedReadIds.has(notification._id),
         }),
       );
       state.unreadCount = state.notifications.filter(
@@ -65,15 +94,21 @@ const notificationSlice = createSlice({
       );
       if (notification) {
         notification.isRead = true;
+        const readIds = getPersistedReadIds();
+        readIds.add(notificationId);
+        persistReadIds(readIds);
         state.unreadCount = state.notifications.filter(
           (notif) => !notif.isRead,
         ).length; // Update unread count
       }
     },
     markAllAsRead: (state) => {
+      const readIds = getPersistedReadIds();
       state.notifications.forEach((notification) => {
         notification.isRead = true;
+        readIds.add(notification._id);
       });
+      persistReadIds(readIds);
       state.unreadCount = 0;
     },
   },
