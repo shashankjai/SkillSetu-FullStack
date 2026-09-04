@@ -11,8 +11,16 @@ const notificationSlice = createSlice({
   initialState,
   reducers: {
     setNotifications: (state, action) => {
-      const newNotifications = action.payload;
-      state.notifications = newNotifications; // Update with new notifications from the backend
+      const locallyReadIds = new Set(
+        state.notifications
+          .filter((notification) => notification.isRead)
+          .map((notification) => notification._id),
+      );
+
+      state.notifications = action.payload.map((notification) => ({
+        ...notification,
+        isRead: notification.isRead || locallyReadIds.has(notification._id),
+      }));
       state.unreadCount = state.notifications.filter(
         (notif) => !notif.isRead,
       ).length; // Update unread count
