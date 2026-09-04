@@ -4,6 +4,14 @@
   --brand-900: #07111f;
   --brand-800: #0f172a;
   --brand-700: #12253f;
+
+.register-page {
+  scrollbar-width: none;
+}
+
+.register-page::-webkit-scrollbar {
+  display: none;
+}
   --brand-600: #1d4ed8;
   --brand-500: #2563eb;
   --brand-400: #60a5fa;

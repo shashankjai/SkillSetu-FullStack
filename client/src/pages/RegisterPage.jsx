@@ -56,7 +56,7 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full overflow-hidden bg-slate-950">
+    <div className="register-page flex h-screen w-full overflow-hidden bg-slate-950">
       <motion.div
         initial={{ opacity: 0, x: -30 }}
         animate={{ opacity: 1, x: 0 }}
