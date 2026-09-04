@@ -6,6 +6,20 @@ const initialState = {
   unreadCount: 0, // Count unread notifications
 };
 
+const removeDuplicateReminders = (notifications) => {
+  const seenReminders = new Set();
+
+  return notifications.filter((notification) => {
+    if (notification.type !== "reminder") return true;
+
+    const reminderKey = `${notification.userId}:${notification.message}`;
+    if (seenReminders.has(reminderKey)) return false;
+
+    seenReminders.add(reminderKey);
+    return true;
+  });
+};
+
 const notificationSlice = createSlice({
   name: "notifications",
   initialState,
@@ -17,15 +31,28 @@ const notificationSlice = createSlice({
           .map((notification) => notification._id),
       );
 
-      state.notifications = action.payload.map((notification) => ({
-        ...notification,
-        isRead: notification.isRead || locallyReadIds.has(notification._id),
-      }));
+      state.notifications = removeDuplicateReminders(action.payload).map(
+        (notification) => ({
+          ...notification,
+          isRead: notification.isRead || locallyReadIds.has(notification._id),
+        }),
+      );
       state.unreadCount = state.notifications.filter(
         (notif) => !notif.isRead,
       ).length; // Update unread count
     },
     addNotification: (state, action) => {
+      const isDuplicateReminder = state.notifications.some(
+        (notification) =>
+          notification.type === "reminder" &&
+          action.payload.type === "reminder" &&
+          notification.userId?.toString() ===
+            action.payload.userId?.toString() &&
+          notification.message === action.payload.message,
+      );
+
+      if (isDuplicateReminder) return;
+
       state.notifications.unshift(action.payload);
       state.unreadCount = state.notifications.filter(
         (notif) => !notif.isRead,
