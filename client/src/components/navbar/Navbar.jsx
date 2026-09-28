@@ -15,6 +15,7 @@ import {
   Search,
 } from "lucide-react";
 import { logout } from "../../redux/slices/authSlice";
+import logo from "../../assets/logo.png";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -50,9 +51,16 @@ const Navbar = () => {
         <NavLink
           to="/"
           onClick={handleNavigation}
-          className="text-2xl font-bold text-white"
+          className="flex shrink-0 items-center gap-2"
         >
-          SkillSetu
+          <img
+            src={logo}
+            alt="SkillSetu"
+            className="h-12 w-12 rounded-full object-cover"
+          />
+          <span className="brand-gradient-text text-xl font-extrabold tracking-tight sm:text-2xl">
+            SkillSetu
+          </span>
         </NavLink>
 
         <div className="md:hidden">

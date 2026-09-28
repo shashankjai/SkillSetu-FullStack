@@ -49,11 +49,10 @@ const Navbar = () => {
   return (
     <nav className="bg-white/20 backdrop-blur-lg border-b border-white/30 shadow-md text-white font-bold">
       <div className="max-w-screen-xl mx-auto flex items-center justify-between p-4">
-
         <NavLink
           to="/"
           onClick={handleNavigation}
-          className="text-3xl font-extrabold text-white drop-shadow-md"
+          className="brand-gradient-text text-3xl font-extrabold drop-shadow-md"
         >
           SkillSetu
         </NavLink>
@@ -74,13 +73,8 @@ const Navbar = () => {
           } md:flex`}
         >
           <div className="flex flex-col md:flex-row md:space-x-4 lg:space-x-8 text-xl">
-
             {/* Home */}
-            <NavLink
-              to="/"
-              onClick={handleNavigation}
-              className={navLinkClass}
-            >
+            <NavLink to="/" onClick={handleNavigation} className={navLinkClass}>
               Home
             </NavLink>
 
@@ -162,7 +156,6 @@ const Navbar = () => {
                 </NavLink>
               </>
             )}
-
           </div>
         </div>
       </div>

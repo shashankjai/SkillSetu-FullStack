@@ -21,17 +21,17 @@ const AboutUsPage = () => {
         <Navbar />
 
         <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
-          
           {/* Header */}
           <section className="mb-10 rounded-2xl border border-white/10 bg-white/5 p-6 text-center md:p-8">
             <p className="text-xs font-semibold uppercase tracking-wider text-blue-400">
               About us
             </p>
-            <h1 className="mt-2 text-4xl font-bold text-white md:text-5xl">
+            <h1 className="brand-gradient-text mt-2 text-4xl font-bold md:text-5xl">
               SkillSetu
             </h1>
             <p className="mt-3 mx-auto max-w-2xl text-base text-slate-300">
-              A peer-to-peer skill exchange platform connecting learners and experts worldwide.
+              A peer-to-peer skill exchange platform connecting learners and
+              experts worldwide.
             </p>
           </section>
 
@@ -82,10 +82,11 @@ const AboutUsPage = () => {
                 <p className="mb-3 text-blue-400">Full Stack Developer</p>
 
                 <p className="mb-5 text-slate-300 leading-relaxed">
-                  I built SkillSetu to make education accessible to everyone. 
-                  This platform lets people share knowledge without worrying 
-                  about money. When I'm not coding, I explore new technologies 
-                  and design user-friendly experiences.
+                  I built <span className="brand-gradient-text">SkillSetu</span>{" "}
+                  to make education accessible to everyone. This platform lets
+                  people share knowledge without worrying about money. When I'm
+                  not coding, I explore new technologies and design
+                  user-friendly experiences.
                 </p>
 
                 <div className="flex justify-center gap-4 md:justify-start">
@@ -123,7 +124,9 @@ const AboutUsPage = () => {
                 Join the Skill Revolution
               </h2>
               <p className="mt-2 text-slate-300">
-                Start teaching, learning, and growing with the SkillSetu community today.
+                Start teaching, learning, and growing with the{" "}
+                <span className="brand-gradient-text">SkillSetu</span> community
+                today.
               </p>
               <button className="mt-5 rounded-full bg-white px-8 py-3 font-semibold text-blue-900 transition hover:bg-slate-100">
                 Explore Skills

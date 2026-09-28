@@ -61,7 +61,8 @@ const AdminDashboardPage = () => {
                 <p className="mt-3 max-w-3xl text-sm text-slate-200 md:text-base">
                   Responsible for overseeing platform operations, handling
                   reports, maintaining integrity, and guiding the growth of the
-                  SkillSetu community.
+                  <span className="brand-gradient-text">SkillSetu</span>{" "}
+                  community.
                 </p>
               </div>
             </div>

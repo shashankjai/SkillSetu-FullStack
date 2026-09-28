@@ -117,7 +117,7 @@ const LoginPage = () => {
           <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">
             Skill exchange platform
           </span>
-          <h1 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
+          <h1 className="brand-gradient-text mt-5 text-4xl font-black tracking-tight sm:text-5xl">
             SkillSetu
           </h1>
           <p className="mt-3 text-base text-slate-300">
@@ -189,7 +189,7 @@ const LoginPage = () => {
           </form>
 
           <div className="mt-6 text-center text-sm text-slate-300">
-            New to SkillSetu?{" "}
+            New to <span className="brand-gradient-text">SkillSetu</span>?{" "}
             <Link
               to="/register"
               className="font-semibold text-blue-300 transition hover:text-white"
@@ -216,7 +216,7 @@ const LoginPage = () => {
           <div className="absolute inset-0 flex items-end p-10">
             <div className="max-w-md rounded-[26px] border border-white/10 bg-slate-950/35 p-6 backdrop-blur-md">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-200">
-                Why SkillSetu
+                Why <span className="brand-gradient-text">SkillSetu</span>
               </p>
               <h3 className="mt-3 text-3xl font-bold text-white">
                 Learn with people, not just courses.

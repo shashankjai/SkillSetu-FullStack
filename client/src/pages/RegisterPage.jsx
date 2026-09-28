@@ -72,9 +72,9 @@ const RegisterPage = () => {
           className="relative z-10 mb-8 text-center"
         >
           <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">
-            Join SkillSetu
+            Join <span className="brand-gradient-text">SkillSetu</span>
           </span>
-          <h1 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
+          <h1 className="brand-gradient-text mt-5 text-4xl font-black tracking-tight sm:text-5xl">
             SkillSetu
           </h1>
           <p className="mt-3 text-base text-slate-300">

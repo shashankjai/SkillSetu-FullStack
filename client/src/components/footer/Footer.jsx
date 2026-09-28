@@ -23,7 +23,7 @@ const Footer = () => {
       <div className="footer-grid">
         <div className="footer-brand">
           <div>
-            <h2>SkillSetu</h2>
+            <h2 className="brand-gradient-text">SkillSetu</h2>
             <p>
               A learning network built around trust, exchange, and practical
               skill growth.
@@ -74,8 +74,9 @@ const Footer = () => {
       </div>
 
       <div className="footer-bottom">
-        © {new Date().getFullYear()} SkillSetu. All rights reserved. | Developed
-        by{" "}
+        © {new Date().getFullYear()}{" "}
+        <span className="brand-gradient-text">SkillSetu</span>. All rights
+        reserved. | Developed by{" "}
         <a
           href="https://shashankfolio.netlify.app/"
           target="_blank"

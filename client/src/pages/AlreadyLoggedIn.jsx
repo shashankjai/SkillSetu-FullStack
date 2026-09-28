@@ -42,7 +42,7 @@ const AlreadyLoggedIn = () => {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6 }}
-          className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent mb-4"
+          className="brand-gradient-text text-4xl sm:text-5xl font-bold mb-4"
         >
           SkillSetu
         </motion.h1>
@@ -53,17 +53,14 @@ const AlreadyLoggedIn = () => {
 
         {user?.name && (
           <p className="text-white text-lg mb-2">
-            Welcome back,{" "}
-            <span className="font-bold">
-              {user.name}
-            </span>
+            Welcome back, <span className="font-bold">{user.name}</span>
           </p>
         )}
 
         <p className="text-blue-100 text-base sm:text-lg mb-8">
-          You are currently signed in to your SkillSetu account.
-          Please logout first if you want to login with another
-          account.
+          You are currently signed in to your{" "}
+          <span className="brand-gradient-text">SkillSetu</span> account. Please
+          logout first if you want to login with another account.
         </p>
 
         <button

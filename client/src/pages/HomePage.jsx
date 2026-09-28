@@ -54,7 +54,8 @@ const Home = () => {
           <div className="hero-copy">
             <span className="eyebrow">Learn from people, not just courses</span>
             <h1>
-              SkillSetu connects what you know with what you want to learn.
+              <span className="brand-gradient-text">SkillSetu</span> connects
+              what you know with what you want to learn.
             </h1>
             <p>
               Build a stronger learning network by sharing expertise, meeting
@@ -150,7 +151,9 @@ const Home = () => {
 
       <section className="features-section">
         <div className="section-heading center-heading">
-          <span className="eyebrow dark">Why SkillSetu works</span>
+          <span className="eyebrow dark">
+            Why <span className="brand-gradient-text">SkillSetu</span> works
+          </span>
           <h2>Practical learning, built around real people.</h2>
         </div>
 
