@@ -1,165 +1,60 @@
-import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { Menu, X } from "lucide-react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Menu, LogOut } from "lucide-react";
 import { logout } from "../../redux/slices/authSlice";
 
-const Navbar = () => {
+const Navbar = ({ adminName = "Admin", profileImage, onToggleSidebar }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const reduxUser = useSelector((state) => state.auth.user);
-
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  // Redux is the UI source of truth,
-  // with localStorage as the persistence layer.
-  const isAuthenticated = Boolean(localStorage.getItem("token"));
-
-  const user = reduxUser;
-
-  const isAdmin = user?.role === "admin";
-
   const handleLogout = () => {
-    // Remove persisted authentication data
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
-    // Clear Redux authentication state
     dispatch(logout());
-
-    // Close mobile menu
-    setMenuOpen(false);
-
-    // Redirect to login
     navigate("/login", { replace: true });
   };
 
-  const handleNavigation = () => {
-    setMenuOpen(false);
-  };
-
-  const navLinkClass = ({ isActive }) =>
-    `block px-3 py-2 rounded-md transition-colors duration-300 font-semibold ${
-      isActive
-        ? "text-blue-700 border-b-2 border-blue-700"
-        : "text-white hover:text-blue-700"
-    }`;
-
   return (
-    <nav className="bg-white/20 backdrop-blur-lg border-b border-white/30 shadow-md text-white font-bold">
-      <div className="max-w-screen-xl mx-auto flex items-center justify-between p-4">
-        <NavLink
-          to="/"
-          onClick={handleNavigation}
-          className="brand-gradient-text text-3xl font-extrabold drop-shadow-md"
-        >
-          SkillSetu
-        </NavLink>
-
-        <div className="md:hidden">
+    <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+      <div className="flex items-center justify-between gap-3 px-4 py-3 md:px-6">
+        <div className="flex items-center gap-3">
           <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="focus:outline-none"
-            aria-label="Toggle menu"
+            type="button"
+            onClick={onToggleSidebar}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white md:hidden"
+            aria-label="Toggle admin sidebar"
           >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            <Menu size={18} />
           </button>
-        </div>
-
-        <div
-          className={`flex-1 justify-end items-center ${
-            menuOpen ? "block" : "hidden"
-          } md:flex`}
-        >
-          <div className="flex flex-col md:flex-row md:space-x-4 lg:space-x-8 text-xl">
-            {/* Home */}
-            <NavLink to="/" onClick={handleNavigation} className={navLinkClass}>
-              Home
-            </NavLink>
-
-            {isAuthenticated && user ? (
-              <>
-                {/* Profile */}
-                <NavLink
-                  to="/profile"
-                  onClick={handleNavigation}
-                  className={navLinkClass}
-                >
-                  Profile
-                </NavLink>
-
-                {/* Skill Matching */}
-                <NavLink
-                  to="/skill-matching"
-                  onClick={handleNavigation}
-                  className={navLinkClass}
-                >
-                  Skill Matching
-                </NavLink>
-
-                {/* Chat */}
-                <NavLink
-                  to="/chat"
-                  onClick={handleNavigation}
-                  className={navLinkClass}
-                >
-                  Chat
-                </NavLink>
-
-                {/* About Us */}
-                <NavLink
-                  to="/about-us"
-                  onClick={handleNavigation}
-                  className={navLinkClass}
-                >
-                  About Us
-                </NavLink>
-
-                {/* Admin Dashboard */}
-                {isAdmin && (
-                  <NavLink
-                    to="/admin"
-                    onClick={handleNavigation}
-                    className={navLinkClass}
-                  >
-                    Admin Dashboard
-                  </NavLink>
-                )}
-
-                {/* Logout */}
-                <button
-                  onClick={handleLogout}
-                  className="mt-2 md:mt-0 bg-blue-700 px-4 py-2 rounded hover:bg-red-600 font-semibold text-white transition-colors duration-300"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                {/* Login */}
-                <NavLink
-                  to="/login"
-                  onClick={handleNavigation}
-                  className={navLinkClass}
-                >
-                  Login
-                </NavLink>
-
-                {/* Sign Up */}
-                <NavLink
-                  to="/register"
-                  onClick={handleNavigation}
-                  className={navLinkClass}
-                >
-                  Sign Up
-                </NavLink>
-              </>
-            )}
+          <div className="brand-gradient-text text-xl font-black md:text-2xl">
+            SkillSetu
           </div>
         </div>
+
+        <div className="flex items-center gap-3">
+          <div className="hidden items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-2 md:flex">
+            <img
+              src={profileImage || "https://placehold.co/80x80?text=Admin"}
+              alt="Admin avatar"
+              className="h-8 w-8 rounded-full border border-white/25 object-cover"
+            />
+            <span className="text-sm font-semibold text-slate-100">
+              {adminName}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-red-500"
+          >
+            <LogOut size={16} />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
+        </div>
       </div>
-    </nav>
+    </header>
   );
 };
 

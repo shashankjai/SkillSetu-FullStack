@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEngagementStats } from "../../redux/slices/adminSlice";
 import { FaFacebookF, FaTwitter, FaLinkedinIn } from "react-icons/fa";
@@ -200,28 +200,32 @@ const UserCard = React.memo(UserCardInner, (prevProps, nextProps) => {
 
 const EngagementAnalytics = () => {
   const dispatch = useDispatch();
-  const { engagementStats, loading, error } = useSelector(
+  const hasFetchedRef = useRef(false);
+  const { engagementStats, engagementLoading, engagementError } = useSelector(
     (state) => state.admin,
   );
 
   useEffect(() => {
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
     dispatch(fetchEngagementStats());
   }, [dispatch]);
 
   const users = useMemo(
-    () => engagementStats.mostActiveUsers || [],
+    () => engagementStats?.mostActiveUsers || [],
     [engagementStats],
   );
   const userCards = useMemo(
     () =>
       users.map((user, idx) => (
-        <UserCard key={user.userId} user={user} rank={idx} />
+        <UserCard key={user.userId || idx} user={user} rank={idx} />
       )),
     [users],
   );
 
-  if (loading) return <p className="text-gray-600 p-6">Loading...</p>;
-  if (error) return <p className="text-red-600 p-6">Error: {error}</p>;
+  if (engagementLoading) return <p className="p-6 text-gray-600">Loading...</p>;
+  if (engagementError)
+    return <p className="p-6 text-red-600">Error: {engagementError}</p>;
 
   return (
     <div className="p-6">

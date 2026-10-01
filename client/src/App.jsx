@@ -17,6 +17,9 @@ import AdminDashboardPage from "./pages/AdminDashboardPage";
 import UserManagement from "./components/admin/UserManagement";
 import ReportManagement from "./components/admin/ReportManagement";
 import AnalyticsOverview from "./components/admin/AnalyticsOverview";
+import SkillsManagement from "./components/admin/SkillsManagement";
+import SessionManagement from "./components/admin/SessionManagement";
+import AdminNotifications from "./components/admin/AdminNotifications";
 import AdminProfile from "./pages/AdminProfilePage";
 import EngagementAnalytics from "./components/admin/EngagementAnalytics";
 
@@ -84,14 +87,14 @@ function App() {
             />
           }
         >
+          <Route index element={<AnalyticsOverview />} />
           <Route path="users" element={<UserManagement />} />
-
           <Route path="reports" element={<ReportManagement />} />
-
+          <Route path="skills" element={<SkillsManagement />} />
+          <Route path="sessions" element={<SessionManagement />} />
           <Route path="analytics" element={<AnalyticsOverview />} />
-
+          <Route path="notifications" element={<AdminNotifications />} />
           <Route path="profile" element={<AdminProfile />} />
-
           <Route
             path="engagement-analytics"
             element={<EngagementAnalytics />}

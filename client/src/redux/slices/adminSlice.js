@@ -208,6 +208,8 @@ const initialState = {
   loading: false,
   error: null,
   engagementStats: {},
+  engagementLoading: false,
+  engagementError: null,
   sessionChats: [],
 };
 
@@ -314,16 +316,16 @@ const adminSlice = createSlice({
       });
     builder
       .addCase(fetchEngagementStats.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.engagementLoading = true;
+        state.engagementError = null;
       })
       .addCase(fetchEngagementStats.fulfilled, (state, action) => {
-        state.loading = false;
+        state.engagementLoading = false;
         state.engagementStats = action.payload;
       })
       .addCase(fetchEngagementStats.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+        state.engagementLoading = false;
+        state.engagementError = action.payload;
       });
     // Session Chats
     builder
