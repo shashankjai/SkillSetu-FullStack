@@ -61,7 +61,7 @@ body::before {
   position: fixed;
   z-index: -1;
   inset: -8%;
-  background-image: linear-gradient(rgba(7, 17, 31, 0.42), rgba(7, 17, 31, 0.58)), url("./assets/auth-bg.jpg");
+  background-image: linear-gradient(rgba(7, 17, 31, 0.18), rgba(7, 17, 31, 0.38)), url("./assets/auth-bg.jpg");
   background-size: cover;
   background-position: center;
   animation: global-background-drift 18s ease-in-out infinite alternate;

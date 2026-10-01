@@ -20,16 +20,16 @@ const AboutUsPage = () => {
       <div className="relative z-10">
         <Navbar />
 
-        <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
           {/* Header */}
-          <section className="mb-10 rounded-2xl border border-white/10 bg-white/5 p-6 text-center md:p-8">
-            <p className="text-xs font-semibold uppercase tracking-wider text-blue-400">
+          <section className="mb-8 rounded-[28px] border border-white/10 bg-gradient-to-r from-blue-600/20 via-sky-500/10 to-indigo-600/20 p-6 text-center shadow-[0_22px_50px_rgba(37,99,235,0.15)] backdrop-blur-xl md:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">
               About us
             </p>
-            <h1 className="brand-gradient-text mt-2 text-4xl font-bold md:text-5xl">
+            <h1 className="brand-gradient-text mt-3 text-4xl font-black md:text-5xl">
               SkillSetu
             </h1>
-            <p className="mt-3 mx-auto max-w-2xl text-base text-slate-300">
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-200 md:text-base">
               A peer-to-peer skill exchange platform connecting learners and
               experts worldwide.
             </p>
@@ -37,7 +37,7 @@ const AboutUsPage = () => {
 
           {/* Mission & Vision */}
           <section className="grid gap-6 py-4 md:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <div className="rounded-[24px] border border-white/10 bg-white/5 p-5 shadow-[0_20px_40px_rgba(15,23,42,0.25)] backdrop-blur-md">
               <h2 className="mb-2 text-xl font-semibold text-blue-400">
                 Our Mission
               </h2>
@@ -47,7 +47,7 @@ const AboutUsPage = () => {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <div className="rounded-[24px] border border-white/10 bg-white/5 p-5 shadow-[0_20px_40px_rgba(15,23,42,0.25)] backdrop-blur-md">
               <h2 className="mb-2 text-xl font-semibold text-blue-400">
                 Our Vision
               </h2>
@@ -64,9 +64,9 @@ const AboutUsPage = () => {
               Meet the Developer
             </h2>
 
-            <div className="flex flex-col items-center gap-8 rounded-2xl border border-white/10 bg-white/5 p-6 md:flex-row md:p-8">
+            <div className="flex flex-col items-center gap-8 rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-[0_20px_40px_rgba(15,23,42,0.25)] backdrop-blur-md md:flex-row md:p-8">
               <div className="shrink-0">
-                <div className="h-48 w-48 overflow-hidden rounded-full border-2 border-blue-400/50 md:h-64 md:w-64">
+                <div className="h-48 w-48 overflow-hidden rounded-full border-2 border-blue-400/50 shadow-[0_20px_50px_rgba(59,130,246,0.25)] md:h-64 md:w-64">
                   <img
                     src={profileImg}
                     alt="Profile"
@@ -119,7 +119,7 @@ const AboutUsPage = () => {
 
           {/* CTA */}
           <section className="py-8 text-center">
-            <div className="rounded-2xl bg-gradient-to-r from-blue-900/60 to-indigo-900/60 p-8">
+            <div className="rounded-[28px] border border-white/10 bg-gradient-to-r from-blue-900/60 to-indigo-900/60 p-8 shadow-[0_22px_50px_rgba(37,99,235,0.15)] backdrop-blur-md">
               <h2 className="text-2xl font-bold text-white md:text-3xl">
                 Join the Skill Revolution
               </h2>
