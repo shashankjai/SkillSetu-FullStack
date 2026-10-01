@@ -3,7 +3,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { FiUser, FiMail, FiLock, FiArrowRight } from "react-icons/fi";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import registerImage from "../assets/auth-bg.jpg";
+import registerImage from "../assets/loginReg.png";
 import { Link } from "react-router-dom";
 
 const RegisterPage = () => {

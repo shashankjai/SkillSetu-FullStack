@@ -6,7 +6,7 @@ import {
   loginFailure,
 } from "../redux/slices/authSlice";
 import axios from "axios";
-import loginImage from "../assets/auth-bg.jpg";
+import loginImage from "../assets/loginReg.png";
 import { useNavigate, Link } from "react-router-dom";
 import { FiMail, FiLock, FiArrowRight } from "react-icons/fi";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
