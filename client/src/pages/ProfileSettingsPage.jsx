@@ -159,18 +159,18 @@ const ProfileSettingsPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-slate-950 text-white">
+    <div className="relative min-h-screen bg-[#0B1220] text-slate-100 flex flex-col font-sans">
       {/* Background layer */}
       <Background />
 
       {/* Foreground content */}
-      <div className="relative z-10 bg-transparent">
+      <div className="relative z-10 flex-1 flex flex-col">
         <Navbar />
 
-        <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-white/10 bg-white/5 p-6 text-white shadow-[0_20px_40px_rgba(15,23,42,0.3)] backdrop-blur-xl">
-          <h2 className="mb-4 text-2xl font-bold text-white">Edit Profile</h2>
+        <div className="mx-auto my-8 w-full max-w-xl rounded-2xl border border-slate-800 bg-[#111B2B] p-6 text-white shadow-xl sm:p-8">
+          <h2 className="mb-4 text-2xl font-bold text-white tracking-tight">Edit Profile</h2>
           {message && (
-            <div className="mb-4 rounded-lg border border-blue-400/30 bg-blue-600/20 p-3 text-blue-200">
+            <div className="mb-4 rounded-xl border border-blue-500/30 bg-blue-500/10 p-3 text-sm text-blue-300">
               {message}
             </div>
           )}

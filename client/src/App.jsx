@@ -10,6 +10,8 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 import SkillMatchingPage from "./pages/SkillMatchingPage";
+import RoadmapPage from "./pages/RoadmapPage";
+import AiAssistantPage from "./pages/AiAssistantPage";
 import ChatPage from "./pages/ChatPage";
 import ProfileSettingsPage from "./pages/ProfileSettingsPage";
 
@@ -60,6 +62,16 @@ function App() {
         <Route
           path="/skill-matching"
           element={<PrivateRoute element={<SkillMatchingPage />} />}
+        />
+
+        <Route
+          path="/learning-roadmap"
+          element={<PrivateRoute element={<RoadmapPage />} />}
+        />
+
+        <Route
+          path="/ai-assistant"
+          element={<PrivateRoute element={<AiAssistantPage />} />}
         />
 
         <Route path="/chat" element={<PrivateRoute element={<ChatPage />} />} />

@@ -24,6 +24,8 @@ const {
 } = require("./controllers/notificationController");
 const adminRoutes = require("./routes/adminRoutes"); // ← Admin dashboard routes
 const reportRoutes = require("./routes/reportRoutes"); // Import reportRoutes
+const roadmapRoutes = require("./routes/roadmapRoutes"); // AI personalized learning roadmaps
+const chatbotRoutes = require("./routes/chatbotRoutes"); // AI Learning Assistant chatbot
 
 dotenv.config();
 
@@ -198,6 +200,8 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/video-call", videoCallRoutes);
 app.use("/api/admin", adminRoutes); // ← Mount Admin Dashboard routes
 app.use("/api/reports", reportRoutes); // ← Mount Admin Dashboard routes
+app.use("/api/roadmaps", roadmapRoutes); // ← Mount Roadmap routes
+app.use("/api/chatbot", chatbotRoutes); // ← Mount AI Assistant Chatbot routes
 
 // ✅ Session namespace handling
 sessionSocket.on("connection", (socket) => {

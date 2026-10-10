@@ -1,3 +1,4 @@
+// client/src/components/navbar/Navbar.jsx
 import React, { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,9 +14,10 @@ import {
   LogIn,
   UserPlus,
   Search,
+  Compass,
+  Bot,
 } from "lucide-react";
 import { logout } from "../../redux/slices/authSlice";
-import logo from "../../assets/logo.png";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -39,44 +41,44 @@ const Navbar = () => {
   const handleNavigation = () => setMenuOpen(false);
 
   const navLinkClass = ({ isActive }) =>
-    `rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+    `flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all duration-150 ${
       isActive
-        ? "bg-blue-600 text-white"
-        : "text-slate-300 hover:bg-white/10 hover:text-white"
+        ? "bg-[#3478F6] text-white shadow-sm font-bold"
+        : "text-slate-300 hover:bg-[#172338] hover:text-white"
     }`;
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/80 backdrop-blur-md">
+    <nav className="sticky top-0 z-40 border-b border-slate-800 bg-[#0B1220]/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        {/* Brand Text Header (NO LOGO IMAGE as per prompt requirement) */}
         <NavLink
           to="/"
           onClick={handleNavigation}
-          className="flex shrink-0 items-center gap-2"
+          className="flex shrink-0 items-center text-white transition hover:opacity-90"
         >
-          <img
-            src={logo}
-            alt="SkillSetu"
-            className="h-12 w-12 rounded-full object-cover"
-          />
-          <span className="brand-gradient-text text-xl font-extrabold tracking-tight sm:text-2xl">
+          <span className="text-xl font-extrabold tracking-tight text-white">
             SkillSetu
           </span>
         </NavLink>
 
+        {/* Mobile Hamburger Toggle */}
         <div className="md:hidden">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="rounded-lg border border-white/10 bg-white/5 p-2 text-white"
+            className="rounded-lg border border-slate-700 bg-[#172338] p-2 text-slate-200 hover:text-white"
             aria-label="Toggle menu"
           >
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
 
+        {/* Desktop & Mobile Navigation Links */}
         <div
-          className={`${menuOpen ? "block" : "hidden"} absolute left-4 right-4 top-[68px] md:static md:block`}
+          className={`${
+            menuOpen ? "block" : "hidden"
+          } absolute left-4 right-4 top-[62px] md:static md:block`}
         >
-          <div className="flex flex-col gap-1 rounded-xl border border-white/10 bg-slate-900/95 p-3 shadow-xl md:flex md:flex-row md:items-center md:gap-1 md:border-0 md:bg-transparent md:p-0 md:shadow-none">
+          <div className="flex flex-col gap-1 rounded-2xl border border-slate-800 bg-[#111B2B] p-3 shadow-2xl md:flex-row md:items-center md:gap-1.5 md:border-0 md:bg-transparent md:p-0 md:shadow-none">
             {isAuthenticated && user ? (
               <>
                 <NavLink
@@ -84,7 +86,7 @@ const Navbar = () => {
                   onClick={handleNavigation}
                   className={navLinkClass}
                 >
-                  <Home size={16} className="inline mr-1.5" />
+                  <Home size={15} />
                   Home
                 </NavLink>
 
@@ -93,7 +95,7 @@ const Navbar = () => {
                   onClick={handleNavigation}
                   className={navLinkClass}
                 >
-                  <User size={16} className="inline mr-1.5" />
+                  <User size={15} />
                   Profile
                 </NavLink>
 
@@ -102,8 +104,26 @@ const Navbar = () => {
                   onClick={handleNavigation}
                   className={navLinkClass}
                 >
-                  <Search size={16} className="inline mr-1.5" />
+                  <Search size={15} />
                   Explore
+                </NavLink>
+
+                <NavLink
+                  to="/learning-roadmap"
+                  onClick={handleNavigation}
+                  className={navLinkClass}
+                >
+                  <Compass size={15} />
+                  Roadmap
+                </NavLink>
+
+                <NavLink
+                  to="/ai-assistant"
+                  onClick={handleNavigation}
+                  className={navLinkClass}
+                >
+                  <Bot size={15} />
+                  AI Assistant
                 </NavLink>
 
                 <NavLink
@@ -111,7 +131,7 @@ const Navbar = () => {
                   onClick={handleNavigation}
                   className={navLinkClass}
                 >
-                  <MessageCircle size={16} className="inline mr-1.5" />
+                  <MessageCircle size={15} />
                   Chat
                 </NavLink>
 
@@ -120,7 +140,7 @@ const Navbar = () => {
                   onClick={handleNavigation}
                   className={navLinkClass}
                 >
-                  <Info size={16} className="inline mr-1.5" />
+                  <Info size={15} />
                   About
                 </NavLink>
 
@@ -130,7 +150,7 @@ const Navbar = () => {
                     onClick={handleNavigation}
                     className={navLinkClass}
                   >
-                    <Shield size={16} className="inline mr-1.5" />
+                    <Shield size={15} />
                     Admin
                   </NavLink>
                 )}
@@ -138,9 +158,9 @@ const Navbar = () => {
                 {location.pathname !== "/" && (
                   <button
                     onClick={handleLogout}
-                    className="mt-2 rounded-full bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 md:mt-0"
+                    className="mt-2 flex items-center gap-1.5 rounded-lg bg-red-600/90 px-3.5 py-2 text-xs font-semibold text-white hover:bg-red-600 md:ml-2 md:mt-0 transition"
                   >
-                    <LogOut size={16} className="inline mr-1.5" />
+                    <LogOut size={15} />
                     Logout
                   </button>
                 )}
@@ -152,7 +172,7 @@ const Navbar = () => {
                   onClick={handleNavigation}
                   className={navLinkClass}
                 >
-                  <Home size={16} className="inline mr-1.5" />
+                  <Home size={15} />
                   Home
                 </NavLink>
 
@@ -161,26 +181,26 @@ const Navbar = () => {
                   onClick={handleNavigation}
                   className={navLinkClass}
                 >
-                  <Info size={16} className="inline mr-1.5" />
+                  <Info size={15} />
                   About
                 </NavLink>
 
-                <div className="flex flex-col gap-1 border-t border-white/10 pt-2 md:flex-row md:border-0 md:pt-0">
+                <div className="flex flex-col gap-1.5 border-t border-slate-800 pt-2 md:flex-row md:border-0 md:pt-0 md:ml-2">
                   <NavLink
                     to="/login"
                     onClick={handleNavigation}
-                    className="rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    className="flex items-center justify-center gap-1.5 rounded-lg bg-[#3478F6] px-4 py-2 text-xs font-bold text-white hover:bg-[#2563EB] transition"
                   >
-                    <LogIn size={16} className="inline mr-1.5" />
+                    <LogIn size={15} />
                     Login
                   </NavLink>
 
                   <NavLink
                     to="/register"
                     onClick={handleNavigation}
-                    className="rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+                    className="flex items-center justify-center gap-1.5 rounded-lg border border-slate-700 bg-[#172338] px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:text-white transition"
                   >
-                    <UserPlus size={16} className="inline mr-1.5" />
+                    <UserPlus size={15} />
                     Sign Up
                   </NavLink>
                 </div>

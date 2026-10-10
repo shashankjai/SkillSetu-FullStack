@@ -1,26 +1,34 @@
 // controllers/matchController.js
+//
+// Enhanced skill matching controller.
+// Uses AI-powered semantic matching when available, falls back to
+// the original exact-match algorithm when the AI service is
+// unavailable or unconfigured.
 
-const User = require('../models/User');
+const User = require("../models/User");
+const {
+  findSemanticMatches,
+  findExactMatches,
+} = require("../services/matchingService");
+const { isAvailable } = require("../services/aiService");
+
+// ── Original exact-match logic (preserved for reference & fallback) ──
 
 const matchSkills = (skillsToTeach, skillsToLearn) => {
   const matches = [];
 
   if (!skillsToTeach || !skillsToLearn) return matches;
 
-  // Normalize skills (convert to lowercase and remove leading/trailing spaces)
-  const normalizedTeachSkills = skillsToTeach
-    .map(skill => skill.trim().toLowerCase());
-  const normalizedLearnSkills = skillsToLearn
-    .map(skill => skill.trim().toLowerCase());
+  const normalizedTeachSkills = skillsToTeach.map((skill) =>
+    skill.trim().toLowerCase()
+  );
+  const normalizedLearnSkills = skillsToLearn.map((skill) =>
+    skill.trim().toLowerCase()
+  );
 
-  console.log('Normalized teach skills:', normalizedTeachSkills); // Debug log for teach skills
-  console.log('Normalized learn skills:', normalizedLearnSkills); // Debug log for learn skills
-
-  // Compare each skill to see if there's a match
   normalizedLearnSkills.forEach((learnSkill) => {
     normalizedTeachSkills.forEach((teachSkill) => {
       if (teachSkill === learnSkill) {
-        console.log(`Match found: ${teachSkill} === ${learnSkill}`); // Debug log for matching skills
         matches.push({ teachSkill, learnSkill });
       }
     });
@@ -29,38 +37,119 @@ const matchSkills = (skillsToTeach, skillsToLearn) => {
   return matches;
 };
 
+// ── Rate Limiting (lightweight per-user protection) ───────────────
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 30;     // 30 requests / min
+
+const checkRateLimit = (userId) => {
+  const now = Date.now();
+  const userRecord = rateLimitMap.get(userId) || {
+    count: 0,
+    resetTime: now + RATE_LIMIT_WINDOW_MS,
+  };
+
+  if (now > userRecord.resetTime) {
+    userRecord.count = 1;
+    userRecord.resetTime = now + RATE_LIMIT_WINDOW_MS;
+    rateLimitMap.set(userId, userRecord);
+    return true;
+  }
+
+  if (userRecord.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return false;
+  }
+
+  userRecord.count += 1;
+  rateLimitMap.set(userId, userRecord);
+  return true;
+};
+
+// Periodic cache cleanup every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [userId, record] of rateLimitMap.entries()) {
+    if (now > record.resetTime) {
+      rateLimitMap.delete(userId);
+    }
+  }
+}, 5 * 60 * 1000).unref();
+
+// ── Main handler ─────────────────────────────────────────────────
+
 const getSkillMatches = async (req, res) => {
   try {
-    const currentUser = await User.findById(req.user.id);
-    if (!currentUser) {
-      return res.status(404).json({ msg: 'Current user not found' });
+    if (!checkRateLimit(req.user.id)) {
+      return res.status(429).json({
+        msg: "Too many matching requests. Please wait a moment before trying again.",
+      });
     }
 
-    // Get all users who have at least one skill to teach
-    const users = await User.find({ _id: { $ne: req.user.id }, 'skillsToTeach.0': { $exists: true } });
+    const currentUser = await User.findById(req.user.id);
+    if (!currentUser) {
+      return res.status(404).json({ msg: "Current user not found" });
+    }
 
-    console.log('Current User Skills to Learn:', currentUser.skillsToLearn); // Debug log for current user's skills to learn
-    console.log('Other Users Skills to Teach:', users.map(user => user.skillsToTeach)); // Debug log for other users' skills to teach
+    // Get all non-admin users (excluding self) who have at least one teachable skill
+    const candidates = await User.find({
+      _id: { $ne: req.user.id },
+      role: { $ne: "admin" },
+      "skillsToTeach.0": { $exists: true },
+    }).select("-password");
 
-    const matches = users.flatMap((user) => {
-      const matchedSkills = matchSkills(currentUser.skillsToLearn, user.skillsToTeach);
-      if (matchedSkills.length > 0) {
-        return matchedSkills.map((skill) => ({
-          user: user,
-          teachSkill: skill.teachSkill,
-          learnSkill: skill.learnSkill,
-        }));
+    // ── Try AI-powered semantic matching first ───────────────────
+    let useAI = false;
+    try {
+      useAI = await isAvailable();
+    } catch {
+      useAI = false;
+    }
+
+    if (useAI) {
+      try {
+        const semanticMatches = await findSemanticMatches(
+          currentUser,
+          candidates
+        );
+
+        // Strip password from user objects (candidates already stripped)
+        const safeResults = semanticMatches.map((m) => {
+          const userObj =
+            typeof m.user.toObject === "function"
+              ? m.user.toObject()
+              : { ...m.user };
+          delete userObj.password;
+          return { ...m, user: userObj };
+        });
+
+        return res.json(safeResults);
+      } catch (aiErr) {
+        console.error(
+          "[matchController] AI matching failed, falling back to exact match:",
+          aiErr.message
+        );
+        // Fall through to exact matching
       }
-      return [];
+    }
+
+    // ── Fallback: exact matching (original algorithm, enhanced format) ──
+    const exactMatches = findExactMatches(currentUser, candidates);
+
+    // Strip password from user objects
+    const safeResults = exactMatches.map((m) => {
+      const userObj =
+        typeof m.user.toObject === "function"
+          ? m.user.toObject()
+          : { ...m.user };
+      delete userObj.password;
+      return { ...m, user: userObj };
     });
 
-    console.log('Matches found:', matches); // Debug log for the matches found
-
-    res.json(matches);
+    return res.json(safeResults);
   } catch (err) {
-    console.error('Error fetching matches:', err.message);
-    res.status(500).send('Server error');
+    console.error("Error fetching matches:", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 };
 
-module.exports = { getSkillMatches };  
+module.exports = { getSkillMatches, matchSkills };

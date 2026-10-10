@@ -495,23 +495,23 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden bg-slate-950 text-white">
+    <div className="min-h-screen relative overflow-x-hidden bg-[#0B1220] text-slate-100 flex flex-col font-sans">
       <Background />
-      <div className="chat-page flex min-h-screen flex-col overflow-x-hidden bg-slate-950/60 text-white">
+      <div className="chat-page flex min-h-screen flex-col overflow-x-hidden bg-[#0B1220] text-slate-100">
         <Navbar />
         <div className="flex flex-1 flex-col md:flex-row">
           <button
-            className="md:hidden fixed top-4 left-4 z-50 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 p-2 text-white shadow-lg"
+            className="md:hidden fixed top-4 left-4 z-50 rounded-xl bg-[#3478F6] p-2 text-white shadow-lg"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             ☰
           </button>
           {/* Left Panel: List of Connections */}
           <div
-            className={`left-panel fixed z-40 top-0 bottom-0 left-0 w-3/4 sm:w-2/4 md:w-1/4 min-h-screen border border-white/10 bg-slate-950/90 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.5)] backdrop-blur-xl transition-transform duration-300 ease-in-out ${isMenuOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static md:block`}
+            className={`left-panel fixed z-40 top-0 bottom-0 left-0 w-3/4 sm:w-2/4 md:w-1/4 min-h-screen border-r border-slate-800 bg-[#111B2B] p-6 shadow-2xl transition-transform duration-300 ease-in-out ${isMenuOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static md:block`}
           >
-            <h2 className="text-2xl font-semibold text-white">Connections</h2>
-            <div className="mt-6 max-h-[80vh] space-y-4 overflow-auto">
+            <h2 className="text-xl font-bold text-white">Connections</h2>
+            <div className="mt-4 max-h-[80vh] space-y-2.5 overflow-auto pr-1">
               {connections.length > 0 ? (
                 connections.map((connection) => {
                   const isSelected =
@@ -520,19 +520,19 @@ const ChatPage = () => {
                   return (
                     <div
                       key={connection._id}
-                      className={`cursor-pointer rounded-2xl border p-4 shadow-lg transition duration-300 
+                      className={`cursor-pointer rounded-xl border p-3.5 transition duration-150 
           ${
             isSelected
-              ? "border-blue-400 bg-gradient-to-r from-blue-600 to-indigo-600"
-              : "border-white/10 bg-white/5 hover:bg-white/10"
+              ? "border-blue-500 bg-[#3478F6] text-white shadow-md"
+              : "border-slate-800 bg-[#172338]/60 hover:border-slate-700 hover:bg-[#172338]"
           }`}
                       onClick={() => handleSelectConnection(connection)}
                     >
-                      <p className="font-semibold text-white">
+                      <p className="font-bold text-white text-sm">
                         {getOtherUserName(connection)}
                       </p>
-                      <p className="text-slate-200">
-                        Skill: {connection.skill || "Eclipse OCL"}
+                      <p className="text-xs text-blue-300 mt-0.5">
+                        Skill: {connection.skill || "Skill Exchange"}
                       </p>
                       <p className="text-slate-200">
                         {formatDate(connection.sessionDate)} at{" "}

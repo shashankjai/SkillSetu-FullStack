@@ -5,11 +5,11 @@ import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
 const Footer = () => {
   const internalLinks = [
     { name: "Home", to: "/" },
-    { name: "Profile", to: "/profile" },
-    { name: "Login", to: "/login" },
-    { name: "Signup", to: "/register" },
-    { name: "Chat", to: "/chat" },
+    { name: "AI Assistant", to: "/ai-assistant" },
+    { name: "Roadmap", to: "/learning-roadmap" },
     { name: "Skill Matching", to: "/skill-matching" },
+    { name: "Profile", to: "/profile" },
+    { name: "Chat", to: "/chat" },
     { name: "Settings", to: "/profile-settings" },
     { name: "About Us", to: "/about-us" },
   ];
@@ -50,6 +50,7 @@ const Footer = () => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
+              title="GitHub"
             >
               <FaGithub size={20} />
             </a>
@@ -58,6 +59,7 @@ const Footer = () => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"
+              title="LinkedIn"
             >
               <FaLinkedin size={20} />
             </a>
@@ -66,6 +68,7 @@ const Footer = () => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Twitter"
+              title="Twitter"
             >
               <FaTwitter size={20} />
             </a>

@@ -181,31 +181,31 @@ const ProfilePage = () => {
   // Show loading state until the profile is available
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-950 p-8 text-slate-300">
-        Loading...
+      <div className="min-h-screen bg-[#0B1220] p-8 text-slate-300 flex items-center justify-center font-sans">
+        <div className="text-sm font-semibold text-slate-400">Loading profile...</div>
       </div>
-    ); // Or use a spinner/loading indicator
+    );
   }
 
   return (
-    <div className="relative min-h-screen bg-slate-950 text-white">
+    <div className="relative min-h-screen bg-[#0B1220] text-slate-100 flex flex-col font-sans">
       <Background />
-      <div className="relative z-10">
+      <div className="relative z-10 flex-1 flex flex-col">
         <Navbar />
         {/* Profile and Notification Section */}
-        <div className="px-4 py-8 sm:px-6 lg:px-8">
+        <div className="px-4 py-8 sm:px-6 lg:px-8 flex-1">
           <div className="mx-auto flex max-w-7xl flex-col items-start justify-between space-y-6 p-4 md:flex-row md:space-y-0 md:p-8">
             {/* Left Profile Card */}
-            <div className="relative flex min-h-[10rem] w-full flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_20px_40px_rgba(15,23,42,0.3)] backdrop-blur-xl transition duration-300 hover:border-blue-400/30 hover:shadow-2xl md:mr-4 md:h-60 md:min-h-[12rem] md:flex-row md:space-x-6 md:p-6">
+            <div className="relative flex min-h-[10rem] w-full flex-col items-center rounded-2xl border border-slate-800 bg-[#111B2B] p-4 shadow-xl md:mr-4 md:h-60 md:min-h-[12rem] md:flex-row md:space-x-6 md:p-6">
               {/* Controls: Notifications + Edit */}
               <div className="absolute right-4 top-4 z-[120] flex items-center space-x-2">
                 <NotificationBell />
                 <button
                   onClick={() => navigate("/profile-settings")}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-blue-400/30 bg-blue-600 text-white transition hover:bg-blue-500 md:h-14 md:w-14"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-400/30 bg-[#3478F6] text-white transition hover:bg-[#2563EB] md:h-12 md:w-12 shadow-md"
                   title="Edit Profile"
                 >
-                  <FiEdit size={20} className="md:w-6 md:h-6" />
+                  <FiEdit size={18} className="md:w-5 md:h-5" />
                 </button>
               </div>
 
@@ -391,16 +391,16 @@ const ProfilePage = () => {
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
               {/* Skills Card */}
-              <div className="h-80 overflow-y-auto rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_20px_40px_rgba(15,23,42,0.25)] backdrop-blur-md transition duration-300 hover:border-blue-400/30 hover:shadow-2xl md:h-96 md:p-6">
+              <div className="h-80 overflow-y-auto rounded-2xl border border-slate-800 bg-[#111B2B] p-4 shadow-xl transition duration-300 hover:border-slate-700 md:h-96 md:p-6">
                 <div className="mb-4 flex items-center justify-between md:mb-6">
-                  <h2 className="text-left text-2xl font-semibold text-white md:text-3xl">
+                  <h2 className="text-left text-2xl font-bold text-white md:text-3xl">
                     Your Skills
                   </h2>
                   <div
                     onClick={openModal}
-                    className="cursor-pointer rounded-full bg-blue-600 p-2 text-white transition hover:bg-blue-500 md:p-3"
+                    className="cursor-pointer rounded-xl bg-[#3478F6] p-2 text-white transition hover:bg-[#2563EB] md:p-2.5 shadow-md"
                   >
-                    <FiEdit size={20} className="md:w-6 md:h-6" />
+                    <FiEdit size={18} className="md:w-5 md:h-5" />
                   </div>
                 </div>
 
@@ -457,18 +457,18 @@ const ProfilePage = () => {
               </div>
 
               {/* Sessions Card */}
-              <div className="flex h-80 flex-col rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_20px_40px_rgba(15,23,42,0.25)] backdrop-blur-md transition duration-300 hover:border-blue-400/30 hover:shadow-2xl md:h-96 md:p-6">
-                <h2 className="mb-4 text-left text-2xl font-semibold text-white md:mb-6 md:text-3xl">
+              <div className="flex h-80 flex-col rounded-2xl border border-slate-800 bg-[#111B2B] p-4 shadow-xl transition duration-300 hover:border-slate-700 md:h-96 md:p-6">
+                <h2 className="mb-4 text-left text-2xl font-bold text-white md:mb-6 md:text-3xl">
                   Your Sessions
                 </h2>
 
-                <div className="flex flex-wrap gap-2 md:space-x-4 mb-4">
+                <div className="flex flex-wrap gap-2 md:space-x-2 mb-4">
                   <button
                     onClick={() => setActiveTab("pending")}
-                    className={`px-3 py-1 md:px-4 md:py-2 rounded-lg font-medium text-sm md:text-base transition ${
+                    className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition ${
                       activeTab === "pending"
-                        ? "bg-blue-600 text-white"
-                        : "bg-white/5 text-slate-300 hover:bg-white/10"
+                        ? "bg-[#3478F6] text-white shadow-sm"
+                        : "bg-[#172338] text-slate-300 hover:bg-slate-700 hover:text-white"
                     }`}
                   >
                     Pending
